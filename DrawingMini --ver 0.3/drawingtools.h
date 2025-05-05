@@ -13,17 +13,18 @@ public:
     explicit DrawingTools(QWidget *parent = nullptr);
     void DrawingEvent(QImage& drawingImage,QImage& backgroundImage,
                       QMouseEvent *event,QPoint& lastPoint,int type=0);//type代表是在MousePressEvent还是MouseMoveEvent中调用的，绘制形状时有用
-
+    int getmode();
 private:
     QColor color;
     int size;
     int mode;//0-> pencil,1->eraser,others->shapes
-
     QPen pen;
     QPen Pencil();
     QPen Eraser(QImage& image);
     QPen ShapePen();
     void setPen(QImage& image);
+
+
 
     QImage tempImage;//临时保存drawingImage,绘制形状时有用
 

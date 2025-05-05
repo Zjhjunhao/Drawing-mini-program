@@ -87,5 +87,14 @@ void DrawingTools::ShapeDrawing(QPainter& painter,QMouseEvent *event,QPoint& las
         painter.drawEllipse(rect.normalized());
         break;
     }
+    case 4:{
+        painter.drawLine(lastPoint, event->pos());
+        break;
+    }
     }
 }
+
+int DrawingTools::getmode(){
+    return mode;
+}
+

@@ -64,6 +64,7 @@ void DrawingWidget::paintEvent(QPaintEvent *) {
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     // 再绘制绘画图层
     painter.drawImage(0, 0, drawingImage);
+
 }
 
 void DrawingWidget::resizeEvent(QResizeEvent *event) {

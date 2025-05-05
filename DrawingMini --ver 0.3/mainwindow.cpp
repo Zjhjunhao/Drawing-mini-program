@@ -42,12 +42,28 @@ MainWindow::MainWindow(QWidget *parent)
     sizeSlider->setValue(3);
     leftLayout->addWidget(sizeSlider);
 
+    //滑块样式
+    sizeSlider->setStyleSheet(R"(
+        QSlider::groove:vertical {
+            background: #E0E0E0;
+            width: 6px;
+            border-radius: 3px;
+        }
+        QSlider::handle:vertical {
+            background: #2196F3;
+            height: 16px;
+            margin: 0 -5px;
+            border-radius: 8px;
+        }
+    )");
+
     mainLayout->addWidget(leftPanel, 0);
     mainLayout->addWidget(drawwidget, 1);
 
     connect(sizeSlider, &QSlider::valueChanged, sizeSlider, [drawwidget](int value) {
         drawwidget->pen->setSize(value);
     });
+
 
     //用工具栏来呈现工具
     QToolBar *toolBar = new QToolBar("主工具栏", this);
@@ -64,17 +80,17 @@ MainWindow::MainWindow(QWidget *parent)
     eraserAction->setStatusTip("切换到橡皮擦");
 
     QAction *rectangleAction = new QAction(QIcon(":/icons/rectangle.png"), "矩形 (R)", this);
-    rectangleAction->setShortcut(QKeySequence("Ctrl+R"));
+    //rectangleAction->setShortcut(QKeySequence("Ctrl+R"));
     rectangleAction->setToolTip("矩形");
     rectangleAction->setStatusTip("切换到矩形");
 
     QAction *circleAction = new QAction(QIcon(":/icons/circle.png"), "圆 (C)", this);
-    circleAction->setShortcut(QKeySequence("Ctrl+S"));
+    //circleAction->setShortcut(QKeySequence("Ctrl+S"));
     circleAction->setToolTip("圆");
     circleAction->setStatusTip("切换到圆");
 
     QAction *lineAction = new QAction(QIcon(":/icons/line.png"), "直线 (L)", this);
-    lineAction->setShortcut(QKeySequence("Ctrl+L"));
+    //lineAction->setShortcut(QKeySequence("Ctrl+L"));
     lineAction->setToolTip("直线");
     lineAction->setStatusTip("切换到直线");
 
@@ -116,6 +132,12 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(circleAction, &QAction::triggered,circleAction, [drawwidget]() {
         drawwidget->pen->setMode(3);
+    });
+    connect(lineAction, &QAction::triggered,lineAction, [drawwidget]() {
+        drawwidget->pen->setMode(4);
+    });
+    connect(blowupAction, &QAction::triggered,blowupAction, [drawwidget]() {
+        drawwidget->pen->setMode(5);
     });
     toolBar->addSeparator();  // 添加分隔线
 
