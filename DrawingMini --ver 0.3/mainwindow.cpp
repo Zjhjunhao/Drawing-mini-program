@@ -14,6 +14,7 @@
 #include <QActionGroup>
 #include <QLabel>
 #include <QToolButton>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -39,9 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     QSlider *sizeSlider = new QSlider(Qt::Vertical, leftPanel);
     sizeSlider->setRange(1, 50);
     sizeSlider->setValue(3);
-    leftLayout->addStretch();
     leftLayout->addWidget(sizeSlider);
-    leftLayout->addStretch();
 
     mainLayout->addWidget(leftPanel, 0);
     mainLayout->addWidget(drawwidget, 1);
