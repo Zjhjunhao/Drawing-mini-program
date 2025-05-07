@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/pen.png</file>
+        <file>icons/eraser.png</file>
+        <file>icons/circle.png</file>
+        <file>icons/rectangle.png</file>
+        <file>icons/color.png</file>
+        <file>icons/line.png</file>
+        <file>icons/paint.png</file>
+        <file>icons/blowup.png</file>
+    </qresource>
+</RCC>
