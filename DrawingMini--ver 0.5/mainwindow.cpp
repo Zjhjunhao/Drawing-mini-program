@@ -14,6 +14,7 @@
 #include <QActionGroup>
 #include <QLabel>
 #include <QToolButton>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -35,11 +36,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
     mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(5);
-    //将画笔粗细放到了左侧
+    mainLayout->setSpacing(0);
+
+    // 左侧面板
     QWidget *leftPanel = new QWidget(centralWidget);
     QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-    DrawingWidget *drawwidget = new DrawingWidget(centralWidget);
     leftLayout->setContentsMargins(5, 5, 5, 5);
 
     QSlider *sizeSlider = new QSlider(Qt::Vertical, leftPanel);
@@ -47,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     sizeSlider->setValue(3);
     leftLayout->addWidget(sizeSlider);
 
-    //滑块样式
+    // 滑块样式
     sizeSlider->setStyleSheet(R"(
         QSlider::groove:vertical {
             background: #E0E0E0;
@@ -62,13 +63,61 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    mainLayout->addWidget(leftPanel, 0);
-    mainLayout->addWidget(drawwidget, 1);
+    // 创建绘图区域和滚动条
+    DrawingWidget *drawwidget = new DrawingWidget(centralWidget);
 
-    connect(sizeSlider, &QSlider::valueChanged, sizeSlider, [drawwidget](int value) {
+    QScrollBar *hScrollBar = new QScrollBar(Qt::Horizontal, centralWidget);
+    hScrollBar->setMaximum(1000);
+    hScrollBar->setMinimum(0);
+    hScrollBar->setPageStep(1000);
+    QScrollBar *vScrollBar = new QScrollBar(Qt::Vertical, centralWidget);
+    vScrollBar->setMaximum(1000);
+    vScrollBar->setMinimum(0);
+    vScrollBar->setPageStep(1000);
+
+    // 右侧垂直布局 (绘图区 + 水平滚动条)
+    QWidget *rightWidget = new QWidget(centralWidget);
+    QVBoxLayout *rightLayout = new QVBoxLayout(rightWidget);
+    rightLayout->setContentsMargins(0, 0, 0, 0);
+    rightLayout->setSpacing(0);
+
+    rightLayout->addWidget(drawwidget, 1); // 绘图区占主要空间
+    rightLayout->addWidget(hScrollBar, 0); // 水平滚动条
+
+    // 将组件添加到主水平布局
+    mainLayout->addWidget(leftPanel, 0);     // 左侧面板
+    mainLayout->addWidget(rightWidget, 1);   // 右侧区域(绘图区+水平滚动条)
+    mainLayout->addWidget(vScrollBar, 0);
+
+    connect(sizeSlider, &QSlider::valueChanged,drawwidget, [drawwidget](int value) {
         drawwidget->pen->setSize(value);
     });
-
+    connect(hScrollBar,&QScrollBar::valueChanged,drawwidget,[drawwidget,hScrollBar](int value){
+        double ratio = static_cast<double>(value) / static_cast<double>(hScrollBar->maximum()-hScrollBar->minimum());
+        drawwidget->handleHorizontalScroll(ratio);
+    });
+    connect(vScrollBar,&QScrollBar::valueChanged,drawwidget,[drawwidget,vScrollBar](int value){
+        double ratio = static_cast<double>(value) / static_cast<double>(vScrollBar->maximum()-vScrollBar->minimum());
+        drawwidget->handleVerticalScroll(ratio);
+    });
+    connect(drawwidget, &DrawingWidget::pageStepRatio, this, [vScrollBar, hScrollBar](double ratioH, double ratioV) {
+        // 根据水平和垂直比例设置滚动条的pageStep
+        int maxH = hScrollBar->maximum() - hScrollBar->minimum();
+        int maxV = vScrollBar->maximum() - vScrollBar->minimum();
+        hScrollBar->setPageStep(qMax(1, static_cast<int>(maxH * ratioH)));
+        vScrollBar->setPageStep(qMax(1, static_cast<int>(maxV * ratioV)));
+    });
+    connect(drawwidget, &DrawingWidget::pagePos, this, [vScrollBar, hScrollBar](double ratioH, double ratioV) {
+        // 根据水平和垂直比例设置滚动条的pageStep
+        hScrollBar->blockSignals(true);
+        vScrollBar->blockSignals(true);
+        int maxH = hScrollBar->maximum() - hScrollBar->minimum();
+        int maxV = vScrollBar->maximum() - vScrollBar->minimum();
+        hScrollBar->setValue(static_cast<int>(maxH * ratioH));
+        vScrollBar->setValue(static_cast<int>(maxV * ratioV));
+        hScrollBar->blockSignals(false);
+        vScrollBar->blockSignals(false);
+    });
 
     //用工具栏来呈现工具
     QToolBar *toolBar = new QToolBar("主工具栏", this);
@@ -99,10 +148,6 @@ MainWindow::MainWindow(QWidget *parent)
     lineAction->setToolTip("直线");
     lineAction->setStatusTip("切换到直线");
 
-    QAction *blowupAction = new QAction(QIcon(":/icons/blowup.png"), "放大镜 (Z)", this);
-    blowupAction->setToolTip("放大镜");
-    blowupAction->setStatusTip("切换到放大镜（右键缩小）");
-
     QAction *paintAction = new QAction(QIcon(":/icons/paint.png"), "填充 (B)", this);
     paintAction->setShortcut(QKeySequence("Ctrl+B"));
     paintAction->setToolTip("填充");
@@ -111,7 +156,6 @@ MainWindow::MainWindow(QWidget *parent)
     toolBar->addAction(penAction);
     toolBar->addAction(eraserAction);
     toolBar->addAction(paintAction);
-    toolBar->addAction(blowupAction);
     toolBar->addAction(lineAction);
     toolBar->addAction(rectangleAction);
     toolBar->addAction(circleAction);
@@ -123,7 +167,6 @@ MainWindow::MainWindow(QWidget *parent)
     toolGroup->addAction(rectangleAction);
     toolGroup->addAction(circleAction);
     toolGroup->addAction(lineAction);
-    toolGroup->addAction(blowupAction);
     toolGroup->addAction(paintAction);
 
     connect(penAction, &QAction::triggered, penAction, [drawwidget]() {
@@ -140,9 +183,6 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(lineAction, &QAction::triggered,lineAction, [drawwidget]() {
         drawwidget->pen->setMode(4);
-    });
-    connect(blowupAction, &QAction::triggered,blowupAction, [drawwidget]() {
-        drawwidget->pen->setMode(5);
     });
     toolBar->addSeparator();  // 添加分隔线
 

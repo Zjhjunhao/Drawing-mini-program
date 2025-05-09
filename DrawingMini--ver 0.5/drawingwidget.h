@@ -59,6 +59,15 @@ private:
     // 私有辅助函数声明
     QPoint convertToOriginalCoordinates(const QPoint& point);
     void adjustViewport();
+
+public slots:
+    // 滑动条拖动的槽函数
+    void handleHorizontalScroll(double ratio);
+    void handleVerticalScroll(double ratio);
+
+signals:
+    void pageStepRatio(double ratioH,double ratioV);
+    void pagePos(double ratioH, double ratioV);
 };
 
 #endif // DRAWINGWIDGET_H

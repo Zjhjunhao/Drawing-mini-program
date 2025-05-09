@@ -13,8 +13,8 @@ DrawingWidget::DrawingWidget(QWidget *parent)
     setMouseTracking(true);
 
     pen = new DrawingTools;
-    int highResWidth = 4*int(width());  // 更高的宽度
-    int highResHeight = 3*int(height()); // 更高的高度
+    int highResWidth = 8*int(width());  // 更高的宽度
+    int highResHeight = 6*int(height()); // 更高的高度
     backgroundImage = QImage(highResWidth, highResHeight, QImage::Format_ARGB32_Premultiplied);
     backgroundImage.fill(Qt::white);
 
@@ -63,13 +63,10 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         lastPoint = convertToOriginalCoordinates(event->pos());
         drawing = true;
-
         // 获取 globalPos
         QPointF globalPos = event->globalPosition();
-
         // 创建 QMouseEvent 对象
         QMouseEvent convertedEvent(event->type(), QPointF(lastPoint), QPointF(), globalPos, event->button(), event->buttons(), event->modifiers(), Qt::MouseEventSource::MouseEventNotSynthesized);
-
         pen->DrawingEvent(drawingImage, backgroundImage, &convertedEvent, lastPoint, 1);
         update();
         qDebug() << "Start drawing at:" << lastPoint;
@@ -78,21 +75,18 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
 
 void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    QPoint currentPoint = convertToOriginalCoordinates(event->pos());
     if ((event->buttons() & Qt::LeftButton) && drawing) {
-        QPoint currentPoint = convertToOriginalCoordinates(event->pos());
-
         // 获取 globalPos
         QPointF globalPos = event->globalPosition();
-
         // 创建 QMouseEvent 对象
         QMouseEvent convertedEvent(event->type(), QPointF(currentPoint), QPointF(), globalPos, event->button(), event->buttons(), event->modifiers(), Qt::MouseEventSource::MouseEventNotSynthesized);
-
         pen->DrawingEvent(drawingImage, backgroundImage, &convertedEvent, lastPoint);
         update();
     }
     if (MainWindow *mainWin = qobject_cast<MainWindow*>(window())) {
         mainWin->statusBar()->showMessage(
-            QString("坐标: (%1, %2)").arg(event->pos().x()).arg(event->pos().y())
+            QString("坐标: (%1, %2)").arg(currentPoint.x()).arg(currentPoint.y())
             );
     }
 }
@@ -166,9 +160,39 @@ void DrawingWidget::wheelEvent(QWheelEvent *event)
         viewportWidth = qBound(1, viewportWidth, originalImage.width());
         viewportHeight = qBound(1, viewportHeight, originalImage.height());
         adjustViewport();
-        update();
-        event->accept();
+
     } else {
-        QWidget::wheelEvent(event);
+        if(event->modifiers() & Qt::ShiftModifier){
+            int scrollDistance = -1*event->angleDelta().y() / 6;
+            viewportX += scrollDistance;
+            viewportX = qBound(0, viewportX, originalImage.width() - viewportWidth);
+        }
+        else{
+            int scrollDistance = -1*event->angleDelta().y() / 8;
+            viewportY += scrollDistance;
+            viewportY = qBound(0, viewportY, originalImage.height() - viewportHeight);
+        }
     }
+    double rX = static_cast<double>(viewportX) / (originalImage.width()-viewportWidth);
+    double rY = static_cast<double>(viewportY) / (originalImage.height()-viewportHeight);
+    double rH = static_cast<double>(viewportWidth) / originalImage.width();
+    double rV = static_cast<double>(viewportHeight) / originalImage.height();
+    emit pagePos(rX,rY);
+    emit pageStepRatio(rH,rV);
+    update();
+    event->accept();
+}
+
+void DrawingWidget::handleHorizontalScroll(double ratio)
+{
+    viewportX = static_cast<int>(((originalImage.width())-viewportWidth)*ratio);
+    adjustViewport();
+    update();
+}
+
+void DrawingWidget::handleVerticalScroll(double ratio)
+{
+    viewportY = static_cast<int>(((originalImage.height())-viewportHeight)*ratio);
+    adjustViewport();
+    update();
 }

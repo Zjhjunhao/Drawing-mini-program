@@ -6,7 +6,7 @@ DrawingTools::DrawingTools(QWidget *parent)
     : QWidget{parent}
 {
     this->color = Qt::black;
-    this->size = 3;
+    this->size = 5;
     this->mode = 0; // 默认模式为铅笔
     this->pen = Pencil();
     setMouseTracking(true);
