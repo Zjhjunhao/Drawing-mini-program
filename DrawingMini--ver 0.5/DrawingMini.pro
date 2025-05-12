@@ -9,19 +9,24 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    drawingtoolbar.cpp \
     drawingtools.cpp \
     drawingwidget.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    startwidget.cpp
 
 HEADERS += \
+    drawingtoolbar.h \
     drawingtools.h \
     drawingwidget.h \
-    mainwindow.h
+    mainwindow.h \
+    startwidget.h
 
 FORMS += \
     drawingwidget.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    startwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "drawingwidget.h"
-#include "drawingtools.h"
+#include "drawingtoolbar.h"
+#include "startwidget.h"
 #include <QPainter>
 #include <QStatusBar>
 #include <QButtonGroup>
@@ -15,6 +16,7 @@
 #include <QLabel>
 #include <QToolButton>
 #include <QScrollBar>
+#include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,6 +24,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //开始界面
+    startPage = new StartWidget(this);
+    setCentralWidget(startPage);
+
+    // 连接开始界面的信号到主窗口的槽
+    connect(startPage, &StartWidget::newCanvasRequested, this, &MainWindow::onNewCanvasRequested);
+    connect(startPage, &StartWidget::openFileRequested, this, &MainWindow::onOpenFileRequested);
+
+    // 菜单栏
     connect(ui->newAction, &QAction::triggered, this, &MainWindow::newActionSlot);
     connect(ui->openAction, &QAction::triggered, this, &MainWindow::openActionSlot);
     connect(ui->saveAction, &QAction::triggered, this, &MainWindow::saveActionSlot);
@@ -30,7 +41,91 @@ MainWindow::MainWindow(QWidget *parent)
     this->statusBar()->show();
     this->setWindowTitle("绘图小程序");
     setWindowState(Qt::WindowMaximized);
+}
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::newActionSlot()
+{
+    if (drawwidget) {
+        drawwidget->clear();
+        qDebug("新建画布成功");
+        this->setWindowTitle("新建画布");
+    }else{
+        qDebug("新建画布失败");
+    }
+}
+
+void MainWindow::openActionSlot()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        "选择一个文件",
+        QDir::homePath(),
+        "Images (*.png *.xpm *.jpg *.jpeg)"
+        );
+
+    if (fileName.isEmpty()) {
+        QMessageBox::warning(this, "警告", "请选择一个文件");
+        return;
+    }
+
+    if (drawwidget) {
+        QImage image(fileName);
+        if (!image.isNull()) {
+            drawwidget->setBackgroundImage(image);
+            drawwidget->setDrawingImage(drawwidget->size());
+            drawwidget->clearDrawingImage();
+            drawwidget->update();
+            this->setWindowTitle("打开文件: " + fileName);
+        } else {
+            QMessageBox::warning(this, "警告", "无法打开文件: " + fileName);
+        }
+    }
+}
+
+void MainWindow::saveActionSlot()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, "保存文件",
+                                                    QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                                                    "Images (*.png *.xpm *.jpg)");
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    if (drawwidget) {
+        QImage combinedImage(drawwidget->size(), QImage::Format_ARGB32_Premultiplied);
+        combinedImage.fill(Qt::transparent);
+        QPainter painter(&combinedImage);
+        painter.drawImage(0, 0, drawwidget->getBackgroundImage());
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        painter.drawImage(0, 0, drawwidget->getDrawingImage());
+
+        if (combinedImage.save(fileName)) {
+            QMessageBox::information(this, "提示", "文件保存成功");
+            this->setWindowTitle("保存文件: " + fileName);
+        } else {
+            QMessageBox::warning(this, "警告", "文件保存失败，可能是文件权限问题或磁盘空间不足。");
+        }
+    } else {
+        QMessageBox::warning(this, "警告", "绘图部件不存在，无法保存文件。");
+    }
+}
+
+void MainWindow::onNewCanvasRequested(){
+    setupDrawingPage();
+    newActionSlot();
+}
+
+void MainWindow::onOpenFileRequested(){
+    setupDrawingPage();
+    openActionSlot();
+}
+
+void MainWindow::setupDrawingPage(){
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
@@ -64,7 +159,7 @@ MainWindow::MainWindow(QWidget *parent)
     )");
 
     // 创建绘图区域和滚动条
-    DrawingWidget *drawwidget = new DrawingWidget(centralWidget);
+    drawwidget = new DrawingWidget(centralWidget);
 
     QScrollBar *hScrollBar = new QScrollBar(Qt::Horizontal, centralWidget);
     hScrollBar->setMaximum(1000);
@@ -89,26 +184,21 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(rightWidget, 1);   // 右侧区域(绘图区+水平滚动条)
     mainLayout->addWidget(vScrollBar, 0);
 
-    connect(sizeSlider, &QSlider::valueChanged,drawwidget, [drawwidget](int value) {
-        drawwidget->pen->setSize(value);
+    connect(hScrollBar, &QScrollBar::valueChanged, drawwidget, [this, hScrollBar](int value) {
+        double ratio = static_cast<double>(value) / static_cast<double>(hScrollBar->maximum() - hScrollBar->minimum());
+        this->drawwidget->handleHorizontalScroll(ratio);
     });
-    connect(hScrollBar,&QScrollBar::valueChanged,drawwidget,[drawwidget,hScrollBar](int value){
-        double ratio = static_cast<double>(value) / static_cast<double>(hScrollBar->maximum()-hScrollBar->minimum());
-        drawwidget->handleHorizontalScroll(ratio);
-    });
-    connect(vScrollBar,&QScrollBar::valueChanged,drawwidget,[drawwidget,vScrollBar](int value){
-        double ratio = static_cast<double>(value) / static_cast<double>(vScrollBar->maximum()-vScrollBar->minimum());
-        drawwidget->handleVerticalScroll(ratio);
+    connect(vScrollBar, &QScrollBar::valueChanged, drawwidget, [this, vScrollBar](int value) {
+        double ratio = static_cast<double>(value) / static_cast<double>(vScrollBar->maximum() - vScrollBar->minimum());
+        this->drawwidget->handleVerticalScroll(ratio);
     });
     connect(drawwidget, &DrawingWidget::pageStepRatio, this, [vScrollBar, hScrollBar](double ratioH, double ratioV) {
-        // 根据水平和垂直比例设置滚动条的pageStep
         int maxH = hScrollBar->maximum() - hScrollBar->minimum();
         int maxV = vScrollBar->maximum() - vScrollBar->minimum();
         hScrollBar->setPageStep(qMax(1, static_cast<int>(maxH * ratioH)));
         vScrollBar->setPageStep(qMax(1, static_cast<int>(maxV * ratioV)));
     });
     connect(drawwidget, &DrawingWidget::pagePos, this, [vScrollBar, hScrollBar](double ratioH, double ratioV) {
-        // 根据水平和垂直比例设置滚动条的pageStep
         hScrollBar->blockSignals(true);
         vScrollBar->blockSignals(true);
         int maxH = hScrollBar->maximum() - hScrollBar->minimum();
@@ -119,166 +209,8 @@ MainWindow::MainWindow(QWidget *parent)
         vScrollBar->blockSignals(false);
     });
 
-    //用工具栏来呈现工具
-    QToolBar *toolBar = new QToolBar("主工具栏", this);
+    // 使用自定义工具栏
+    DrawingToolBar *toolBar = new DrawingToolBar(this);
     addToolBar(Qt::TopToolBarArea, toolBar);
-
-    QAction *penAction = new QAction(QIcon(":/icons/pen.png"), "铅笔 (P)", this);
-    penAction->setShortcut(QKeySequence("Ctrl+P"));
-    penAction->setToolTip("铅笔");
-    penAction->setStatusTip("切换到铅笔");
-
-    QAction *eraserAction = new QAction(QIcon(":/icons/eraser.png"), "橡皮擦 (E)", this);
-    eraserAction->setShortcut(QKeySequence("Ctrl+E"));
-    eraserAction->setToolTip("橡皮擦");
-    eraserAction->setStatusTip("切换到橡皮擦");
-
-    QAction *rectangleAction = new QAction(QIcon(":/icons/rectangle.png"), "矩形 (R)", this);
-    //rectangleAction->setShortcut(QKeySequence("Ctrl+R"));
-    rectangleAction->setToolTip("矩形");
-    rectangleAction->setStatusTip("切换到矩形");
-
-    QAction *circleAction = new QAction(QIcon(":/icons/circle.png"), "圆 (C)", this);
-    //circleAction->setShortcut(QKeySequence("Ctrl+S"));
-    circleAction->setToolTip("圆");
-    circleAction->setStatusTip("切换到圆");
-
-    QAction *lineAction = new QAction(QIcon(":/icons/line.png"), "直线 (L)", this);
-    //lineAction->setShortcut(QKeySequence("Ctrl+L"));
-    lineAction->setToolTip("直线");
-    lineAction->setStatusTip("切换到直线");
-
-    QAction *paintAction = new QAction(QIcon(":/icons/paint.png"), "填充 (B)", this);
-    paintAction->setShortcut(QKeySequence("Ctrl+B"));
-    paintAction->setToolTip("填充");
-    paintAction->setStatusTip("切换到填充");
-
-    toolBar->addAction(penAction);
-    toolBar->addAction(eraserAction);
-    toolBar->addAction(paintAction);
-    toolBar->addAction(lineAction);
-    toolBar->addAction(rectangleAction);
-    toolBar->addAction(circleAction);
-
-
-    QActionGroup *toolGroup = new QActionGroup(this);
-    toolGroup->addAction(penAction);
-    toolGroup->addAction(eraserAction);
-    toolGroup->addAction(rectangleAction);
-    toolGroup->addAction(circleAction);
-    toolGroup->addAction(lineAction);
-    toolGroup->addAction(paintAction);
-
-    connect(penAction, &QAction::triggered, penAction, [drawwidget]() {
-        drawwidget->pen->setMode(0);;
-    });
-    connect(eraserAction, &QAction::triggered,eraserAction, [drawwidget]() {
-        drawwidget->pen->setMode(1);
-    });
-    connect(rectangleAction, &QAction::triggered,rectangleAction, [drawwidget]() {
-        drawwidget->pen->setMode(2);
-    });
-    connect(circleAction, &QAction::triggered,circleAction, [drawwidget]() {
-        drawwidget->pen->setMode(3);
-    });
-    connect(lineAction, &QAction::triggered,lineAction, [drawwidget]() {
-        drawwidget->pen->setMode(4);
-    });
-    toolBar->addSeparator();  // 添加分隔线
-
-    // 颜色选择动作
-    QAction *colorAction = new QAction(QIcon(":/icons/color.png"), "颜色", this);
-    colorAction->setToolTip("选择画笔颜色");
-    connect(colorAction, &QAction::triggered, colorAction, [drawwidget,this]() {
-        QColor newColor=QColorDialog::getColor(Qt::white, this);
-        drawwidget->pen->setColor(newColor);
-    });
-    toolBar->addAction(colorAction);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
-void MainWindow::newActionSlot()
-{
-    QWidget *centralWidget = this->centralWidget();
-    QHBoxLayout *mainLayout = qobject_cast<QHBoxLayout*>(centralWidget->layout());
-    if (mainLayout) {
-        for (int i = 0; i < mainLayout->count(); ++i) {
-            QLayoutItem *item = mainLayout->itemAt(i);
-            DrawingWidget *drawwidget = qobject_cast<DrawingWidget*>(item->widget());
-            if (drawwidget) {
-                drawwidget->clear();
-                break;
-            }
-        }
-    }
-    this->setWindowTitle("新建画布");
-}
-
-void MainWindow::openActionSlot()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, "选择一个文件",
-                                                    QCoreApplication::applicationFilePath(),
-                                                    "Images (*.png *.xpm *.jpg)");
-    if (fileName.isEmpty()) {
-        QMessageBox::warning(this, "警告", "请选择一个文件");
-    }
-    else {
-        QWidget *centralWidget = this->centralWidget();
-        QHBoxLayout *mainLayout = qobject_cast<QHBoxLayout*>(centralWidget->layout());
-        if (mainLayout) {
-            for (int i = 0; i < mainLayout->count(); ++i) {
-                QLayoutItem *item = mainLayout->itemAt(i);
-                DrawingWidget *drawwidget = qobject_cast<DrawingWidget*>(item->widget());
-                if (drawwidget) {
-                    QImage image(fileName);
-                    if (!image.isNull()) {
-                        drawwidget->setBackgroundImage(image);
-                        drawwidget->setDrawingImage(drawwidget->size());
-                        drawwidget->clearDrawingImage();
-                        drawwidget->update();
-                        this->setWindowTitle("打开文件: " + fileName);
-                    } else {
-                        QMessageBox::warning(this, "警告", "无法打开文件");
-                    }
-                    break;
-                }
-            }
-        }
-    }
-}
-
-void MainWindow::saveActionSlot()
-{
-    QString fileName = QFileDialog::getSaveFileName(this, "保存文件",
-                                                    QCoreApplication::applicationFilePath(),
-                                                    "Images (*.png *.xpm *.jpg)");
-    if (!fileName.isEmpty()) {
-        QWidget *centralWidget = this->centralWidget();
-        QHBoxLayout *mainLayout = qobject_cast<QHBoxLayout*>(centralWidget->layout());
-        if (mainLayout) {
-            for (int i = 0; i < mainLayout->count(); ++i) {
-                QLayoutItem *item = mainLayout->itemAt(i);
-                DrawingWidget *drawwidget = qobject_cast<DrawingWidget*>(item->widget());
-                if (drawwidget) {
-                    QImage combinedImage(drawwidget->size(), QImage::Format_ARGB32_Premultiplied);
-                    combinedImage.fill(Qt::transparent);
-                    QPainter painter(&combinedImage);
-                    painter.drawImage(0, 0, drawwidget->getBackgroundImage());
-                    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-                    painter.drawImage(0, 0, drawwidget->getDrawingImage());
-                    if (combinedImage.save(fileName)) {
-                        QMessageBox::information(this, "提示", "文件保存成功");
-                        this->setWindowTitle("保存文件: " + fileName);
-                    } else {
-                        QMessageBox::warning(this, "警告", "文件保存失败");
-                    }
-                    break;
-                }
-            }
-        }
-    }
+    toolBar->setupTools(drawwidget);
 }
