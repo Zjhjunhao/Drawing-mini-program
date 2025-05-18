@@ -74,6 +74,7 @@ void MainWindow::openActionSlot()
     }
 
     if (drawwidget) {
+        setupDrawingPage();
         QImage image(fileName);
         if (!image.isNull()) {
             drawwidget->setBackgroundImage(image, true);
