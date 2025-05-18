@@ -11,11 +11,11 @@ StartWidget::StartWidget(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     // 标题
-    QLabel *titleLabel = new QLabel("绘图小程序", this);
-    titleLabel->setAlignment(Qt::AlignCenter);
-    QFont titleFont = titleLabel->font();
-    titleFont.setPointSize(24);
-    titleLabel->setFont(titleFont);
+    //QLabel *titleLabel = new QLabel("绘图小程序", this);
+    //titleLabel->setAlignment(Qt::AlignCenter);
+    // QFont titleFont = titleLabel->font();
+    // titleFont.setPointSize(24);
+    // titleLabel->setFont(titleFont);
 
     // 按钮
     newButton = new QPushButton("新建画布", this);
@@ -28,7 +28,7 @@ StartWidget::StartWidget(QWidget *parent)
 
     // 添加到布局
     layout->addStretch();
-    layout->addWidget(titleLabel);
+    //layout->addWidget(titleLabel);
     layout->addSpacing(40);
     layout->addWidget(newButton, 0, Qt::AlignCenter);
     layout->addWidget(openButton, 0, Qt::AlignCenter);
