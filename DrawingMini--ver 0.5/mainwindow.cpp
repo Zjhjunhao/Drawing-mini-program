@@ -21,6 +21,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+
 {
     ui->setupUi(this);
 
@@ -59,7 +60,7 @@ void MainWindow::newActionSlot()
     }
 }
 
-void MainWindow::openActionSlot()
+void MainWindow::openActionSlot(bool firstTimeOpen = false)
 {
     QString fileName = QFileDialog::getOpenFileName(
         this,
@@ -74,7 +75,7 @@ void MainWindow::openActionSlot()
     }
 
     if (drawwidget) {
-        setupDrawingPage();
+        if (firstTimeOpen) setupDrawingPage();
         QImage image(fileName);
         if (!image.isNull()) {
             drawwidget->setBackgroundImage(image, true);
@@ -126,7 +127,7 @@ void MainWindow::onNewCanvasRequested(){
 
 void MainWindow::onOpenFileRequested(){
     // setupDrawingPage();
-    openActionSlot();
+    openActionSlot(true);
 }
 
 void MainWindow::setupDrawingPage(){
