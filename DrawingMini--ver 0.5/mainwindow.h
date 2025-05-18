@@ -24,7 +24,7 @@ public:
 
 private slots:
     void newActionSlot();   //新建文件槽函数
-    void openActionSlot();  //打开文件槽函数
+    void openActionSlot(bool firstTimeOpen);  //打开文件槽函数
     void saveActionSlot();  //另存为文件槽函数
     void onNewCanvasRequested();
     void onOpenFileRequested();

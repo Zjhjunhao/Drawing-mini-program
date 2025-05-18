@@ -164,10 +164,10 @@ void DrawingWidget::setBackgroundImage(const QImage& image, bool keepOriginalSiz
         drawingImage = originalImage.copy();
 
         // 初始化视口
-        viewportWidth = width();
-        viewportHeight = height();
-        viewportX = (backgroundImage.width() - viewportWidth) / 2;
-        viewportY = (backgroundImage.height() - viewportHeight) / 2;
+        viewportWidth = image.width();
+        viewportHeight = image.height();
+        viewportX = (image.width() - viewportWidth) / 2;
+        viewportY = (image.height() - viewportHeight) / 2;
     } else {
         // 缩放适应现有画布
         backgroundImage = image.scaled(originalImage.size(),
