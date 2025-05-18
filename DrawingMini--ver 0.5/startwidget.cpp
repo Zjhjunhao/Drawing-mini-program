@@ -4,7 +4,7 @@
 
 StartWidget::StartWidget(QWidget *parent)
     : QWidget(parent),
-    background(":/icons/background.jpg")
+    background(":/icons/background.png")
 {
     updateBackground();
 
@@ -44,6 +44,7 @@ void StartWidget::updateBackground()
     if (!background.isNull()) {
         QPalette palette;
         // 保持比例+填充整个区域（可能裁剪）
+
         palette.setBrush(QPalette::Window,
                          QBrush(background.scaled(size(),
                                                     Qt::KeepAspectRatioByExpanding,

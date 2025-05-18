@@ -50,8 +50,10 @@ QPoint DrawingWidget::convertToOriginalCoordinates(const QPoint& point)
 
 void DrawingWidget::adjustViewport()
 {
-    viewportX = qBound(0, viewportX, originalImage.width() - viewportWidth);
-    viewportY = qBound(0, viewportY, originalImage.height() - viewportHeight);
+    const int maxX = qMax(0, backgroundImage.width() - viewportWidth);
+    const int maxY = qMax(0, backgroundImage.height() - viewportHeight);
+    viewportX = qBound(0, viewportX, maxX);
+    viewportY = qBound(0, viewportY, maxY);
     int centerX = viewportX + viewportWidth / 2;
     int centerY = viewportY + viewportHeight / 2;
     viewportX = centerX - viewportWidth / 2;
@@ -118,9 +120,30 @@ void DrawingWidget::clear()
     update();
 }
 
-void DrawingWidget::setBackgroundImage(const QImage& image)
+void DrawingWidget::setBackgroundImage(const QImage& image, bool keepOriginalSize)
 {
-    backgroundImage = image.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (keepOriginalSize) {
+        // 保持原始尺寸
+        backgroundImage = image.copy();
+
+        // 重置画布尺寸
+        originalImage = QImage(image.size(), QImage::Format_ARGB32_Premultiplied);
+        originalImage.fill(QColor(0, 0, 0, 0));
+        drawingImage = originalImage.copy();
+
+        // 初始化视口
+        viewportWidth = width();
+        viewportHeight = height();
+        viewportX = (backgroundImage.width() - viewportWidth) / 2;
+        viewportY = (backgroundImage.height() - viewportHeight) / 2;
+    } else {
+        // 缩放适应现有画布
+        backgroundImage = image.scaled(originalImage.size(),
+                                       Qt::KeepAspectRatio,
+                                       Qt::SmoothTransformation);
+    }
+
+    adjustViewport();
     update();
 }
 

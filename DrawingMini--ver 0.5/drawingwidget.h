@@ -21,7 +21,7 @@ public:
     DrawingTools *pen;
     void clear();
     // 添加公共访问函数
-    void setBackgroundImage(const QImage& image);
+    void setBackgroundImage(const QImage& image, bool keepOriginalSize = false);
     void setDrawingImage(const QSize& size);
     void clearDrawingImage();
     QImage getBackgroundImage() const;

@@ -76,11 +76,14 @@ void MainWindow::openActionSlot()
     if (drawwidget) {
         QImage image(fileName);
         if (!image.isNull()) {
-            drawwidget->setBackgroundImage(image);
-            drawwidget->setDrawingImage(drawwidget->size());
-            drawwidget->clearDrawingImage();
+            drawwidget->setBackgroundImage(image, true);
             drawwidget->update();
             this->setWindowTitle("打开文件: " + fileName);
+
+            // QScrollBar* hScroll = ui->horizontalScrollBar;
+            // QScrollBar* vScroll = ui->verticalScrollBar;
+            // hScroll->setMaximum(image.width() - drawwidget->width());
+            // vScroll->setMaximum(image.height() - drawwidget->height());
         } else {
             QMessageBox::warning(this, "警告", "无法打开文件: " + fileName);
         }
