@@ -86,7 +86,7 @@ void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
     }
     if (MainWindow *mainWin = qobject_cast<MainWindow*>(window())) {
         mainWin->statusBar()->showMessage(
-            QString("坐标: (%1, %2)").arg(currentPoint.x()).arg(currentPoint.y())
+            QString("坐标: (%1, %2)      画布大小：(%3, %4)").arg(currentPoint.x()).arg(currentPoint.y()).arg(backgroundImage.width()).arg(backgroundImage.height())
             );
     }
 }

@@ -3,8 +3,11 @@
 #include <QLabel>
 
 StartWidget::StartWidget(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+    background(":/icons/background.jpg")
 {
+    updateBackground();
+
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     // 标题
@@ -34,6 +37,26 @@ StartWidget::StartWidget(QWidget *parent)
     // 连接信号
     connect(newButton, &QPushButton::clicked, this, &StartWidget::newCanvasRequested);
     connect(openButton, &QPushButton::clicked, this, &StartWidget::openFileRequested);
+}
+
+void StartWidget::updateBackground()
+{
+    if (!background.isNull()) {
+        QPalette palette;
+        // 保持比例+填充整个区域（可能裁剪）
+        palette.setBrush(QPalette::Window,
+                         QBrush(background.scaled(size(),
+                                                    Qt::KeepAspectRatioByExpanding,
+                                                    Qt::SmoothTransformation)));
+        setPalette(palette);
+        setAutoFillBackground(true);
+    }
+}
+
+void StartWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    updateBackground();
 }
 
 StartWidget::~StartWidget()

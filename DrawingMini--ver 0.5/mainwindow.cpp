@@ -208,7 +208,9 @@ void MainWindow::setupDrawingPage(){
         hScrollBar->blockSignals(false);
         vScrollBar->blockSignals(false);
     });
-
+    connect(sizeSlider, &QSlider::valueChanged, sizeSlider, [this](int value) {
+        drawwidget->pen->setSize(value);
+    });
     // 使用自定义工具栏
     DrawingToolBar *toolBar = new DrawingToolBar(this);
     addToolBar(Qt::TopToolBarArea, toolBar);

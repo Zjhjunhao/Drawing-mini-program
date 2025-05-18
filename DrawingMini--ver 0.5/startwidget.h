@@ -19,10 +19,15 @@ signals:
     void newCanvasRequested();
     void openFileRequested();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+    void updateBackground();
+
 private:
     Ui::StartWidget *ui;
     QPushButton *newButton;
     QPushButton *openButton;
+    QPixmap background;
 };
 
 #endif // STARTWIDGET_H

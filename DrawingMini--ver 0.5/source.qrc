@@ -8,5 +8,6 @@
         <file>icons/line.png</file>
         <file>icons/paint.png</file>
         <file>icons/blowup.png</file>
+        <file>icons/background.jpg</file>
     </qresource>
 </RCC>
