@@ -124,7 +124,7 @@ void MainWindow::onNewCanvasRequested(){
 }
 
 void MainWindow::onOpenFileRequested(){
-    setupDrawingPage();
+    // setupDrawingPage();
     openActionSlot();
 }
 

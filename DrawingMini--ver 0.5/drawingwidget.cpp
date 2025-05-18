@@ -114,9 +114,41 @@ void DrawingWidget::paintEvent(QPaintEvent *)
 
 void DrawingWidget::clear()
 {
+    // 清除绘图图像，将其填充为透明色
     drawingImage.fill(QColor(0, 0, 0, 0));
+    originalImage = drawingImage.copy();
+
+    // 重置背景图像为初始状态（白色）
+    backgroundImage = QImage(backgroundImage.size(), QImage::Format_ARGB32_Premultiplied);
+    backgroundImage.fill(Qt::white);
+
+    // 重置绘图状态为未绘图
     drawing = false;
+
+    // 重置最后一个鼠标点的坐标
     lastPoint = QPoint();
+
+    // 重置视口到初始状态
+    viewportX = 0;
+    viewportY = 0;
+    viewportWidth = originalImage.width();
+    viewportHeight = originalImage.height();
+
+    // 调整视口以确保在有效范围内
+    adjustViewport();
+
+    // 重置缩放比例
+    scaleFactor = 1;
+
+    // 发送信号更新滚动条的页面步长和位置
+    double rX = static_cast<double>(viewportX) / (originalImage.width() - viewportWidth);
+    double rY = static_cast<double>(viewportY) / (originalImage.height() - viewportHeight);
+    double rH = static_cast<double>(viewportWidth) / originalImage.width();
+    double rV = static_cast<double>(viewportHeight) / originalImage.height();
+    emit pagePos(rX, rY);
+    emit pageStepRatio(rH, rV);
+
+    // 更新绘图区域
     update();
 }
 
