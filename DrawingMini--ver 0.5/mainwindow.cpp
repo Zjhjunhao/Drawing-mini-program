@@ -39,9 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->saveAction, &QAction::triggered, this, &MainWindow::saveActionSlot);
 
     setMouseTracking(true);
-    this->statusBar()->show();
     this->setWindowTitle("绘图小程序");
-    setWindowState(Qt::WindowMaximized);
+    ui->menubar->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -121,11 +120,15 @@ void MainWindow::saveActionSlot()
 }
 
 void MainWindow::onNewCanvasRequested(){
+    ui->menubar->setVisible(true);
+    setWindowState(Qt::WindowMaximized);
     setupDrawingPage();
     newActionSlot();
 }
 
 void MainWindow::onOpenFileRequested(){
+    ui->menubar->setVisible(true);
+    setWindowState(Qt::WindowMaximized);
     // setupDrawingPage();
     openActionSlot(true);
 }

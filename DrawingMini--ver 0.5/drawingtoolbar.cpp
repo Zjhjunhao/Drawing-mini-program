@@ -94,7 +94,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
 
 void DrawingToolBar::onColorSelected()
 {
-    QColor newColor = QColorDialog::getColor(Qt::black, this, "选择颜色");
+    QColor newColor = QColorDialog::getColor(Qt::white, this, "选择颜色");
     if (newColor.isValid()) {
         emit colorChanged(newColor);
     }
