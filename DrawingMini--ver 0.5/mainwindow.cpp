@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     setMouseTracking(true);
     this->setWindowTitle("绘图小程序");
     ui->menubar->setVisible(false);
+    ui->statusbar->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -80,6 +81,9 @@ void MainWindow::openActionSlot(bool firstTimeOpen = false)
             drawwidget->setBackgroundImage(image, true);
             drawwidget->update();
             this->setWindowTitle("打开文件: " + fileName);
+            ui->statusbar->setVisible(true);
+            ui->menubar->setVisible(true);
+            setWindowState(Qt::WindowMaximized);
 
             // QScrollBar* hScroll = ui->horizontalScrollBar;
             // QScrollBar* vScroll = ui->verticalScrollBar;
@@ -120,6 +124,7 @@ void MainWindow::saveActionSlot()
 }
 
 void MainWindow::onNewCanvasRequested(){
+    ui->statusbar->setVisible(true);
     ui->menubar->setVisible(true);
     setWindowState(Qt::WindowMaximized);
     setupDrawingPage();
@@ -127,8 +132,6 @@ void MainWindow::onNewCanvasRequested(){
 }
 
 void MainWindow::onOpenFileRequested(){
-    ui->menubar->setVisible(true);
-    setWindowState(Qt::WindowMaximized);
     // setupDrawingPage();
     openActionSlot(true);
 }

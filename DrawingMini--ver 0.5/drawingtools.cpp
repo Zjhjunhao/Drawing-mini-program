@@ -9,6 +9,7 @@ DrawingTools::DrawingTools(QWidget *parent)
     this->size = 5;
     this->mode = 0; // 默认模式为铅笔
     this->pen = Pencil();
+    shape=nullptr;
     setMouseTracking(true);
 }
 
@@ -18,6 +19,11 @@ void DrawingTools::setColor(QColor color) {
 
 void DrawingTools::setSize(int size) {
     this->size = size;
+}
+
+void DrawingTools::setSelectedShape(Shapes* p){
+    qDebug()<<"got it!";
+    this->shape=p;
 }
 
 QPen DrawingTools::Pencil() {
@@ -51,47 +57,65 @@ void DrawingTools::setPen(QImage& image) {
     }
 }
 
-void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QMouseEvent *event,QPoint& lastPoint,int type){
+void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPoint& nowPoint,QPoint& lastPoint,int type){
     setPen(backgroundImage);
     QPainter painter(&drawingImage);
     painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
     painter.setPen(pen);
     if(this->mode==0||this->mode==1){//pencil or eraser
-        painter.drawLine(lastPoint, event->pos());
-        lastPoint = event->pos();
+        painter.drawLine(lastPoint, nowPoint);
+        lastPoint = nowPoint;
     }
     else{//shapes
         if(type==1){//MousePressEvent中传入未绘制前的画布，需保存
             this->tempImage=drawingImage.copy();
             return;
         }
-        painter.setCompositionMode(QPainter::CompositionMode_Source);
-        painter.drawImage(0, 0, tempImage);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-        ShapeDrawing(painter,event,lastPoint);
+        if(mode==6&&shape!=nullptr){// select mode
+            painter.setCompositionMode(QPainter::CompositionMode_Source);
+            painter.drawImage(0, 0, shape->background);
+            shape->move(lastPoint,nowPoint);
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+            shape->draw(painter);
+            lastPoint=nowPoint;
+            if(type==2){
+                shape=nullptr;
+            }
+        }
+        else{
+            painter.setCompositionMode(QPainter::CompositionMode_Source);
+            painter.drawImage(0, 0, tempImage);
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+            ShapeDrawing(painter,nowPoint,lastPoint,type);
+
+        }
     }
 }
 
-void DrawingTools::ShapeDrawing(QPainter& painter,QMouseEvent *event,QPoint& lastPoint){
+void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint,int flag){
     switch (mode) {
     case 2:{
-        QRect rect(lastPoint, event->pos());
-        painter.drawRect(rect.normalized());
+        shape=new Rectangle(lastPoint,nowPoint,tempImage);
         break;
     }
     case 3:{
-        int dx=lastPoint.x()-event->pos().x();
-        int dy=lastPoint.y()-event->pos().y();
-        int r=std::sqrt(dx*dx+dy*dy);
-        QRectF rect(lastPoint.x()-r,lastPoint.y()-r,2*r,2*r);
-        painter.drawEllipse(rect.normalized());
+        shape=new Ellipse(lastPoint,nowPoint,tempImage);
         break;
     }
     case 4:{
-        painter.drawLine(lastPoint, event->pos());
+        shape=new Line(lastPoint,nowPoint,tempImage);
         break;
     }
+    default:return;
     }
+    shape->draw(painter);
+    if(flag==2){// MouseReleaseEvent中调用，需传回Shape的指针
+        emit returnShape(shape);
+    }
+    else{
+        delete shape;
+    }
+    shape=nullptr;
 }
 
 int DrawingTools::getmode(){

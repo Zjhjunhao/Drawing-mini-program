@@ -13,8 +13,8 @@ DrawingWidget::DrawingWidget(QWidget *parent)
     setMouseTracking(true);
 
     pen = new DrawingTools;
-    int highResWidth = 8*int(width());  // 更高的宽度
-    int highResHeight = 6*int(height()); // 更高的高度
+    int highResWidth = static_cast<int>(8*width());  // 更高的宽度
+    int highResHeight = static_cast<int>(5.5*height()); // 更高的高度
     backgroundImage = QImage(highResWidth, highResHeight, QImage::Format_ARGB32_Premultiplied);
     backgroundImage.fill(Qt::white);
 
@@ -31,6 +31,12 @@ DrawingWidget::DrawingWidget(QWidget *parent)
 
     scaleFactor = 1;
     drawing = false;
+
+    connect(pen,&DrawingTools::returnShape,this,[this](Shapes* shape){
+        shapes.push_back(shape);
+    });
+
+    connect(this,&DrawingWidget::selectedShape,pen,&DrawingTools::setSelectedShape);
 }
 
 DrawingWidget::~DrawingWidget()
@@ -65,11 +71,16 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         lastPoint = convertToOriginalCoordinates(event->pos());
         drawing = true;
-        // 获取 globalPos
-        QPointF globalPos = event->globalPosition();
-        // 创建 QMouseEvent 对象
-        QMouseEvent convertedEvent(event->type(), QPointF(lastPoint), QPointF(), globalPos, event->button(), event->buttons(), event->modifiers(), Qt::MouseEventSource::MouseEventNotSynthesized);
-        pen->DrawingEvent(drawingImage, backgroundImage, &convertedEvent, lastPoint, 1);
+        if(pen->getmode()==6){
+            for (auto it = shapes.rbegin(); it != shapes.rend(); ++it) {// 找最上层的
+                if ((*it)->contains(lastPoint)) {
+                    emit selectedShape(*it);
+                    break;
+                }
+            }
+        }
+        qDebug()<<pen->getmode();
+        pen->DrawingEvent(drawingImage, backgroundImage, lastPoint, lastPoint, 1);
         update();
         qDebug() << "Start drawing at:" << lastPoint;
     }
@@ -79,11 +90,7 @@ void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint currentPoint = convertToOriginalCoordinates(event->pos());
     if ((event->buttons() & Qt::LeftButton) && drawing) {
-        // 获取 globalPos
-        QPointF globalPos = event->globalPosition();
-        // 创建 QMouseEvent 对象
-        QMouseEvent convertedEvent(event->type(), QPointF(currentPoint), QPointF(), globalPos, event->button(), event->buttons(), event->modifiers(), Qt::MouseEventSource::MouseEventNotSynthesized);
-        pen->DrawingEvent(drawingImage, backgroundImage, &convertedEvent, lastPoint);
+        pen->DrawingEvent(drawingImage, backgroundImage, currentPoint, lastPoint);
         update();
     }
     if (MainWindow *mainWin = qobject_cast<MainWindow*>(window())) {
@@ -95,7 +102,9 @@ void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
 
 void DrawingWidget::mouseReleaseEvent(QMouseEvent *event)
 {
+    QPoint currentPoint = convertToOriginalCoordinates(event->pos());
     if (event->button() == Qt::LeftButton && drawing) {
+        pen->DrawingEvent(drawingImage, backgroundImage, currentPoint, lastPoint, 2);
         drawing = false;
         originalImage = drawingImage.copy();
         qDebug() << "Stop drawing";
@@ -147,6 +156,9 @@ void DrawingWidget::clear()
     double rV = static_cast<double>(viewportHeight) / originalImage.height();
     emit pagePos(rX, rY);
     emit pageStepRatio(rH, rV);
+
+    // 清空形状列表
+    shapes.clear();
 
     // 更新绘图区域
     update();

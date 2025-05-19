@@ -54,6 +54,12 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     paintAction->setCheckable(true);
     paintAction->setData(5); // 填充模式
 
+    QAction *selectAction = new QAction("选择", this);
+    selectAction->setToolTip("选择");
+    selectAction->setStatusTip("切换到选择");
+    selectAction->setCheckable(true);
+    selectAction->setData(6); // 选择模式
+
     // 添加动作到工具栏和动作组
     addAction(penAction);
     addAction(eraserAction);
@@ -61,6 +67,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     addAction(lineAction);
     addAction(rectangleAction);
     addAction(circleAction);
+    addAction(selectAction);
 
     toolGroup->addAction(penAction);
     toolGroup->addAction(eraserAction);
@@ -68,6 +75,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     toolGroup->addAction(circleAction);
     toolGroup->addAction(lineAction);
     toolGroup->addAction(paintAction);
+    toolGroup->addAction(selectAction);
 
     // 默认选中铅笔
     penAction->setChecked(true);
