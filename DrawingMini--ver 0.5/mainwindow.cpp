@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
     setMouseTracking(true);
     this->setWindowTitle("绘图小程序");
     resize(1200, 800);
+    ui->menubar->setVisible(false);
+    ui->statusbar->setVisible(false);
 
 }
 

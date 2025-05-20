@@ -17,7 +17,7 @@ StartWidget::StartWidget(QWidget *parent)
     QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
     leftLayout->setContentsMargins(40, 0, 0, 0);
 
-    QLabel *verticalLabel = new QLabel("未\n明\n画\n板", leftPanel);
+    QLabel *verticalLabel = new QLabel("未\n名\n画\n板", leftPanel);
     verticalLabel->setAlignment(Qt::AlignCenter);
     //字体
     QFont verticalFont = verticalLabel->font();

@@ -32,7 +32,7 @@ private:
 
     QImage tempImage;//临时保存drawingImage,绘制形状时有用
 
-    void ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint,int flag);//形状绘制
+    void ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint);//形状绘制
 
 public slots:
     void setColor(QColor color);
