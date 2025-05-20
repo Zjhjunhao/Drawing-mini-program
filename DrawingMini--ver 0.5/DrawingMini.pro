@@ -14,6 +14,7 @@ SOURCES += \
     drawingwidget.cpp \
     main.cpp \
     mainwindow.cpp \
+    shapes.cpp \
     startwidget.cpp
 
 HEADERS += \
@@ -21,6 +22,7 @@ HEADERS += \
     drawingtools.h \
     drawingwidget.h \
     mainwindow.h \
+    shapes.h \
     startwidget.h
 
 FORMS += \

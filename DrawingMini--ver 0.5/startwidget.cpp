@@ -58,7 +58,7 @@ StartWidget::StartWidget(QWidget *parent)
     mainLayout->addWidget(leftPanel);
     mainLayout->addWidget(rightPanel, 1);
 
-    // 连接信号
+    //连接信号
     connect(newButton, &QPushButton::clicked, this, &StartWidget::newCanvasRequested);
     connect(openButton, &QPushButton::clicked, this, &StartWidget::openFileRequested);
 }

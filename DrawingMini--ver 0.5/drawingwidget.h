@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
+#include <vector>
 
 namespace Ui {
 class DrawingWidget;
@@ -45,10 +46,14 @@ private:
     QImage backgroundImage;
     // 绘画图层
     QImage drawingImage;
+    // 形状图层
+    QImage shapeImage;
     // 原始绘画图层的备份
     QImage originalImage;
     // 缩放比例
     double scaleFactor;
+    // 形状列表
+    std::vector<Shapes*>shapes;
 
     // 视口相关成员变量
     int viewportX;
@@ -68,6 +73,7 @@ public slots:
 signals:
     void pageStepRatio(double ratioH,double ratioV);
     void pagePos(double ratioH, double ratioV);
+    void selectedShape(Shapes* p);
 };
 
 #endif // DRAWINGWIDGET_H
