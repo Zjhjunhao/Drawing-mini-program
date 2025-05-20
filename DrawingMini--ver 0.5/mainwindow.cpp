@@ -40,8 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     setMouseTracking(true);
     this->setWindowTitle("绘图小程序");
-    ui->menubar->setVisible(false);
-    ui->statusbar->setVisible(false);
+    resize(1200, 800);
+
 }
 
 MainWindow::~MainWindow()
@@ -137,6 +137,7 @@ void MainWindow::onOpenFileRequested(){
 }
 
 void MainWindow::setupDrawingPage(){
+    setWindowState(Qt::WindowMaximized);
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
