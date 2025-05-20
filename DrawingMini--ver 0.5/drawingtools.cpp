@@ -62,7 +62,7 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPo
     QPainter painter(&drawingImage);
     painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
     painter.setPen(pen);
-    if(this->mode==0||this->mode==1){//pencil or eraser
+    if(this->mode==0){//pencil or eraser
         painter.drawLine(lastPoint, nowPoint);
         lastPoint = nowPoint;
     }
@@ -73,9 +73,10 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPo
         }
         if(mode==6&&shape!=nullptr){// select mode
             painter.setCompositionMode(QPainter::CompositionMode_Source);
-            painter.drawImage(0, 0, shape->background);
+            painter.drawImage(0, 0, tempImage);
             shape->move(lastPoint,nowPoint);
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+            painter.setPen(shape->pen);
             shape->draw(painter);
             lastPoint=nowPoint;
             if(type==2){
@@ -92,18 +93,31 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPo
     }
 }
 
+void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QImage& shapeImage,QPoint& nowPoint,QPoint& lastPoint){
+    setPen(backgroundImage);
+    QPainter painter1(&drawingImage);
+    QPainter painter2(&shapeImage);
+    painter1.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+    painter1.setPen(pen);
+    painter2.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+    painter2.setPen(pen);
+    painter1.drawLine(lastPoint, nowPoint);
+    painter2.drawLine(lastPoint, nowPoint);
+    lastPoint = nowPoint;
+}
+
 void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint,int flag){
     switch (mode) {
     case 2:{
-        shape=new Rectangle(lastPoint,nowPoint,tempImage);
+        shape=new Rectangle(lastPoint,nowPoint);
         break;
     }
     case 3:{
-        shape=new Ellipse(lastPoint,nowPoint,tempImage);
+        shape=new Ellipse(lastPoint,nowPoint);
         break;
     }
     case 4:{
-        shape=new Line(lastPoint,nowPoint,tempImage);
+        shape=new Line(lastPoint,nowPoint);
         break;
     }
     default:return;

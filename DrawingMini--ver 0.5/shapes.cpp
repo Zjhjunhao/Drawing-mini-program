@@ -1,16 +1,20 @@
 #include "shapes.h"
 
-Shapes::Shapes(ShapeType type,const QPoint& lastPoint,const QPoint& nowPoint,QImage& image):
-    type(type),lastPoint(lastPoint),nowPoint(nowPoint),selected(false),background(image){}
+Shapes::Shapes(ShapeType type,const QPoint& lastPoint,const QPoint& nowPoint):
+    type(type),lastPoint(lastPoint),nowPoint(nowPoint),selected(false),hasPen(false),pen(QPen()){}
 
 void Shapes::setSelected(){selected=true;}
 
-Rectangle::Rectangle(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image):Shapes(RECTANGLE,lastPoint,nowPoint,image)
+Rectangle::Rectangle(const QPoint& lastPoint,const QPoint& nowPoint):Shapes(RECTANGLE,lastPoint,nowPoint)
 {
     rect=QRect(lastPoint,nowPoint);
 }
 
 void Rectangle::draw(QPainter& painter){
+    if(!hasPen){
+        pen=(painter.pen());
+        hasPen=true;
+    }
     painter.drawRect(rect.normalized());
 }
 
@@ -19,17 +23,12 @@ bool Rectangle::contains(const QPoint& point){
 }
 
 void Rectangle::move(const QPoint& last,const QPoint& now){
-    // qDebug()<<last<<now;
-    // qDebug()<<lastPoint<<nowPoint;
-    // printQRectVertices();
     lastPoint+=(now-last);
     nowPoint+=(now-last);
-    // qDebug()<<lastPoint<<nowPoint;
     rect=QRect(lastPoint,nowPoint);
-    // printQRectVertices();
 }
 
-Ellipse::Ellipse(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image):Shapes(ELLIPSE,lastPoint,nowPoint,image)
+Ellipse::Ellipse(const QPoint& lastPoint,const QPoint& nowPoint):Shapes(ELLIPSE,lastPoint,nowPoint)
 {
     int dx=lastPoint.x()-nowPoint.x();
     int dy=lastPoint.y()-nowPoint.y();
@@ -38,6 +37,10 @@ Ellipse::Ellipse(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image):S
 }
 
 void Ellipse::draw(QPainter& painter){
+    if(!hasPen){
+        pen=(painter.pen());
+        hasPen=true;
+    }
     painter.drawEllipse(rect.normalized());
 }
 
@@ -54,12 +57,16 @@ void Ellipse::move(const QPoint& last,const QPoint& now){
     rect=QRect(lastPoint.x()-r,lastPoint.y()-r,2*r,2*r);
 }
 
-Line::Line(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image):Shapes(LINE,lastPoint,nowPoint,image)
+Line::Line(const QPoint& lastPoint,const QPoint& nowPoint):Shapes(LINE,lastPoint,nowPoint)
 {
     rect=QRect(lastPoint,nowPoint);
 }
 
 void Line::draw(QPainter& painter){
+    if(!hasPen){
+        pen=(painter.pen());
+        hasPen=true;
+    }
     painter.drawLine(lastPoint,nowPoint);
 }
 bool Line::contains(const QPoint& point){

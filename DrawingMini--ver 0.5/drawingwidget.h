@@ -46,6 +46,8 @@ private:
     QImage backgroundImage;
     // 绘画图层
     QImage drawingImage;
+    // 形状图层
+    QImage shapeImage;
     // 原始绘画图层的备份
     QImage originalImage;
     // 缩放比例

@@ -15,6 +15,8 @@ public:
     explicit DrawingTools(QWidget *parent = nullptr);
     void DrawingEvent(QImage& drawingImage,QImage& backgroundImage,
                       QPoint& nowPoint,QPoint& lastPoint,int type=0);//type代表是在MousePressEvent还是MouseMoveEvent中调用的，绘制形状时有用
+    void DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QImage& shapeImage,
+                      QPoint& nowPoint,QPoint& lastPoint);// 重载使用橡皮时调用的函数
     int getmode();
 private:
     QColor color;

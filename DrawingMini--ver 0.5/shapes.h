@@ -14,11 +14,12 @@ protected:
     QPoint lastPoint;
     QPoint nowPoint;
     bool selected;    // 是否选中
+    bool hasPen; // 是否有对应画笔
 
 
 public:
-    Shapes(ShapeType type,const QPoint& lastPoint,const QPoint& nowPoint,QImage& image);
-    QImage background;
+    QPen pen;
+    Shapes(ShapeType type,const QPoint& lastPoint,const QPoint& nowPoint);
     virtual void draw(QPainter& painter) = 0;
     virtual bool contains(const QPoint& point) = 0;
     virtual void move(const QPoint& last,const QPoint& now) = 0;
@@ -49,7 +50,7 @@ public:
 class Rectangle:public Shapes
 {
 public:
-    Rectangle(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image);
+    Rectangle(const QPoint& lastPoint,const QPoint& nowPoint);
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
@@ -58,7 +59,7 @@ public:
 class Ellipse:public Shapes
 {
 public:
-    Ellipse(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image);
+    Ellipse(const QPoint& lastPoint,const QPoint& nowPoint);
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
@@ -67,7 +68,7 @@ public:
 class Line:public Shapes
 {
 public:
-    Line(const QPoint& lastPoint,const QPoint& nowPoint,QImage& image);
+    Line(const QPoint& lastPoint,const QPoint& nowPoint);
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
