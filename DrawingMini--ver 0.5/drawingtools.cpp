@@ -80,6 +80,7 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPo
             shape->draw(painter);
             lastPoint=nowPoint;
             if(type==2){
+                shape->setSelected(false,drawingImage);
                 shape=nullptr;
             }
         }
@@ -87,26 +88,35 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPo
             painter.setCompositionMode(QPainter::CompositionMode_Source);
             painter.drawImage(0, 0, tempImage);
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-            ShapeDrawing(painter,nowPoint,lastPoint,type);
-
+            ShapeDrawing(painter,nowPoint,lastPoint);
+            if(type==2&&shape != nullptr){
+                emit returnShape(shape);
+                shape->setSelected(false,drawingImage);
+            }
+            else{
+                delete shape;
+            }
+            shape=nullptr;
         }
     }
 }
 
 void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QImage& shapeImage,QPoint& nowPoint,QPoint& lastPoint){
     setPen(backgroundImage);
-    QPainter painter1(&drawingImage);
-    QPainter painter2(&shapeImage);
-    painter1.setRenderHint(QPainter::Antialiasing); // 抗锯齿
-    painter1.setPen(pen);
-    painter2.setRenderHint(QPainter::Antialiasing); // 抗锯齿
-    painter2.setPen(pen);
-    painter1.drawLine(lastPoint, nowPoint);
-    painter2.drawLine(lastPoint, nowPoint);
+    QPainter painter(&drawingImage);
+    painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+    painter.setPen(pen);
+    painter.drawLine(lastPoint, nowPoint);
+    painter.end();
+    painter.begin(&shapeImage);
+    painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+    painter.setPen(pen);
+    painter.drawLine(lastPoint, nowPoint);
+    painter.end();
     lastPoint = nowPoint;
 }
 
-void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint,int flag){
+void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint){
     switch (mode) {
     case 2:{
         shape=new Rectangle(lastPoint,nowPoint);
@@ -123,13 +133,13 @@ void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastP
     default:return;
     }
     shape->draw(painter);
-    if(flag==2){// MouseReleaseEvent中调用，需传回Shape的指针
-        emit returnShape(shape);
-    }
-    else{
-        delete shape;
-    }
-    shape=nullptr;
+    // if(flag==2){// MouseReleaseEvent中调用，需传回Shape的指针
+    //     emit returnShape(shape);
+    // }
+    // else{
+    //     delete shape;
+    // }
+    // shape=nullptr;
 }
 
 int DrawingTools::getmode(){

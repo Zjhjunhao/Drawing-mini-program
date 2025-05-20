@@ -16,6 +16,8 @@ protected:
     bool selected;    // 是否选中
     bool hasPen; // 是否有对应画笔
 
+    virtual void changeSelectedWidget(QImage& image)=0;
+
 
 public:
     QPen pen;
@@ -24,7 +26,7 @@ public:
     virtual bool contains(const QPoint& point) = 0;
     virtual void move(const QPoint& last,const QPoint& now) = 0;
     virtual ~Shapes()=default;
-    void setSelected();
+    void setSelected(bool select,QImage& image);
     // void printQRectVertices() {
     //     int x = rect.x();
     //     int y = rect.y();
@@ -54,6 +56,7 @@ public:
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
+    void changeSelectedWidget(QImage& image);
 };
 
 class Ellipse:public Shapes
@@ -63,6 +66,7 @@ public:
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
+    void changeSelectedWidget(QImage& image);
 };
 
 class Line:public Shapes
@@ -72,5 +76,6 @@ public:
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
+    void changeSelectedWidget(QImage& image);
 };
 #endif // SHAPES_H
