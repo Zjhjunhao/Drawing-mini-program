@@ -9,5 +9,6 @@
         <file>icons/paint.png</file>
         <file>icons/blowup.png</file>
         <file>icons/background.png</file>
+        <file>icons/pku.png</file>
     </qresource>
 </RCC>

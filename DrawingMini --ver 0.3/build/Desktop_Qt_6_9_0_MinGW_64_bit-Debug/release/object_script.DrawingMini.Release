@@ -1,0 +1,13 @@
+release/drawingtoolbar.o
+release/drawingtools.o
+release/drawingwidget.o
+release/main.o
+release/mainwindow.o
+release/shapes.o
+release/startwidget.o
+release/qrc_source.o
+release/moc_drawingtoolbar.o
+release/moc_drawingtools.o
+release/moc_drawingwidget.o
+release/moc_mainwindow.o
+release/moc_startwidget.o

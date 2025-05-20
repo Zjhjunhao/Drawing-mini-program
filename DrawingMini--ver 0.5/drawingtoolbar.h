@@ -14,11 +14,13 @@ class DrawingToolBar : public QToolBar
 public:
     explicit DrawingToolBar(QWidget *parent = nullptr);
     void setupTools(DrawingWidget *drawingWidget);
+    QWidget* createColorPalette();
 
 signals:
     void colorChanged(const QColor &color);
     void toolModeChanged(int mode);
     void penSizeChanged(int size);
+
 
 private slots:
     void onColorSelected();
@@ -26,6 +28,7 @@ private slots:
 private:
     QActionGroup *toolGroup;
     QAction *colorAction;
+    QColor currentColor;
 };
 
 #endif // DRAWINGTOOLBAR_H

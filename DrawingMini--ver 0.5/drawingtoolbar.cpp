@@ -2,19 +2,24 @@
 #include "drawingwidget.h"
 #include <QAction>
 #include <QIcon>
+#include <QColorDialog>
+#include <QToolButton>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QWidget>
 
 DrawingToolBar::DrawingToolBar(QWidget *parent) : QToolBar(parent)
 {
     setWindowTitle("绘图工具栏");
 
-    // 创建工具组
+    //创建工具组
     toolGroup = new QActionGroup(this);
     toolGroup->setExclusive(true);
 }
 
 void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
 {
-    // 添加工具按钮
+    //添加工具按钮
     QAction *penAction = new QAction(QIcon(":/icons/pen.png"), "铅笔 (P)", this);
     penAction->setShortcut(QKeySequence("Ctrl+P"));
     penAction->setToolTip("铅笔");
@@ -60,7 +65,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     selectAction->setCheckable(true);
     selectAction->setData(6); // 选择模式
 
-    // 添加动作到工具栏和动作组
+    //添加动作
     addAction(penAction);
     addAction(eraserAction);
     addAction(paintAction);
@@ -77,33 +82,96 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     toolGroup->addAction(paintAction);
     toolGroup->addAction(selectAction);
 
-    // 默认选中铅笔
+    //默认选中铅笔
     penAction->setChecked(true);
 
-    // 连接工具切换信号
+    //连接工具切换信号
     connect(toolGroup, &QActionGroup::triggered, this, [this](QAction *action) {
         emit toolModeChanged(action->data().toInt());
     });
 
     addSeparator();
 
-    // 颜色选择动作
+    //颜色选择动作
     colorAction = new QAction(QIcon(":/icons/color.png"), "颜色", this);
     colorAction->setToolTip("选择画笔颜色");
     addAction(colorAction);
 
-    // 连接颜色选择信号
+    //连接颜色选择信号
     connect(colorAction, &QAction::triggered, this, &DrawingToolBar::onColorSelected);
 
-    // 连接工具栏信号到绘图控件
+    //添加基本颜色选择按钮
+    addSeparator();
+    addWidget(createColorPalette());
+
+    QWidget* spacer = new QWidget(this);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    addWidget(spacer);
+    QAction *pkuIconAction = new QAction(QIcon(":/icons/pku.png"), "", this);
+    //pkuIconAction->setEnabled(false);
+    pkuIconAction->setToolTip("北京大学");
+    // connect(pkuIconAction, &QAction::triggered, this, [this]() {
+    // });
+    addAction(pkuIconAction);
+
+    //连接工具栏信号到绘图控件
     connect(this, &DrawingToolBar::colorChanged, drawingWidget->pen, &DrawingTools::setColor);
     connect(this, &DrawingToolBar::toolModeChanged, drawingWidget->pen, &DrawingTools::setMode);
 }
 
+QWidget* DrawingToolBar::createColorPalette()
+{
+    QWidget* paletteWidget = new QWidget(this);
+    QHBoxLayout* layout = new QHBoxLayout(paletteWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(2);
+
+    //创建颜色按钮组
+    QButtonGroup* colorButtonGroup = new QButtonGroup(this);
+    colorButtonGroup->setExclusive(true);
+
+    //定义基本颜色列表
+    QList<QColor> basicColors = {
+        Qt::black, Qt::white, Qt::red, Qt::green, Qt::blue,
+        Qt::yellow, Qt::cyan, Qt::magenta, Qt::gray, Qt::darkGray,
+        Qt::lightGray, QColor(255, 165, 0), // 橙色
+        QColor(128, 0, 128), // 紫色
+        QColor(139, 69, 19), // 棕色
+        QColor(255, 192, 203) // 粉色
+    };
+
+    //创建颜色按钮
+    for (const QColor& color : basicColors) {
+        QToolButton* colorButton = new QToolButton(paletteWidget);
+        colorButton->setFixedSize(25, 25);
+        colorButton->setCheckable(true);
+        colorButton->setStyleSheet(QString("background-color: %1; border: 1px solid #888;").arg(color.name()));
+        colorButton->setToolTip(color.name());
+        QString colorName = color.name();
+        colorButton->setStatusTip(QString("切换到%1").arg(colorName));
+
+        // 存储颜色信息
+        colorButton->setProperty("color", color);
+
+        // 添加到布局和按钮组
+        layout->addWidget(colorButton);
+        colorButtonGroup->addButton(colorButton);
+
+        // 连接按钮点击事件
+        connect(colorButton, &QToolButton::clicked, this, [this, colorButton]() {
+            QColor selectedColor = colorButton->property("color").value<QColor>();
+            emit colorChanged(selectedColor);
+        });
+    }
+
+    return paletteWidget;
+}
+
 void DrawingToolBar::onColorSelected()
 {
-    QColor newColor = QColorDialog::getColor(Qt::white, this, "选择颜色");
+    QColor newColor = QColorDialog::getColor(currentColor, this, "选择颜色");
     if (newColor.isValid()) {
+        currentColor = newColor;
         emit colorChanged(newColor);
     }
 }
