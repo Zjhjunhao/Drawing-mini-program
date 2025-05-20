@@ -86,6 +86,7 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
                 }
             }
             QPainter painter(&tempShape);
+            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
             for(auto it=shapes.begin();it!=shapes.end();++it){
                 painter.setPen((*it)->pen);
                 (*it)->draw(painter);
@@ -97,7 +98,7 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
         QImage tempImage=drawingImage.copy();
         QPainter painter(&tempImage);
         painter.drawImage(0,0,tempShape);
-        pen->DrawingEvent(tempImage, backgroundImage, lastPoint, lastPoint, 1);
+        pen->DrawingEvent(tempImage, lastPoint, lastPoint, 1);
         update();
         qDebug() << "Start drawing at:" << lastPoint;
     }
@@ -108,13 +109,13 @@ void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
     QPoint currentPoint = convertToOriginalCoordinates(event->pos());
     if ((event->buttons() & Qt::LeftButton) && drawing) {
         if(pen->getmode()==0){// pencil，普通绘画
-            pen->DrawingEvent(drawingImage, backgroundImage, currentPoint, lastPoint);
+            pen->DrawingEvent(drawingImage, currentPoint, lastPoint);
         }
         else if(pen->getmode()==1){// eraser,橡皮擦
-            pen->DrawingEvent(drawingImage, backgroundImage,shapeImage, currentPoint, lastPoint);
+            pen->DrawingEvent(drawingImage,shapeImage, currentPoint, lastPoint);
         }
         else{// 形状
-            pen->DrawingEvent(shapeImage, backgroundImage, currentPoint, lastPoint);
+            pen->DrawingEvent(shapeImage, currentPoint, lastPoint);
         }
         update();
     }
@@ -143,13 +144,13 @@ void DrawingWidget::mouseReleaseEvent(QMouseEvent *event)
     QPoint currentPoint = convertToOriginalCoordinates(event->pos());
     if (event->button() == Qt::LeftButton && drawing) {
         if(pen->getmode()==0){// pencil，普通绘画
-            pen->DrawingEvent(drawingImage, backgroundImage, currentPoint, lastPoint,2);
+            pen->DrawingEvent(drawingImage, currentPoint, lastPoint,2);
         }
         else if(pen->getmode()==1){// eraser,橡皮擦
-            pen->DrawingEvent(drawingImage, backgroundImage,shapeImage, currentPoint, lastPoint);
+            pen->DrawingEvent(drawingImage,shapeImage, currentPoint, lastPoint);
         }
         else{// 形状
-            pen->DrawingEvent(shapeImage, backgroundImage, currentPoint, lastPoint,2);
+            pen->DrawingEvent(shapeImage, currentPoint, lastPoint,2);
         }
         drawing = false;
         QPainter painter(&originalImage);
@@ -164,9 +165,9 @@ void DrawingWidget::paintEvent(QPaintEvent *)
     QPainter painter(this);
     QRect viewportRect(viewportX, viewportY, viewportWidth, viewportHeight);
     painter.drawImage(rect(), backgroundImage, viewportRect);
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.drawImage(rect(), drawingImage, viewportRect);
     painter.drawImage(rect(), shapeImage, viewportRect);
+    painter.drawImage(rect(), drawingImage, viewportRect);
+
 }
 
 

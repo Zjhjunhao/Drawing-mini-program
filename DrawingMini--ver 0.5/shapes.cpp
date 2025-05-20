@@ -18,6 +18,7 @@ void Rectangle::draw(QPainter& painter){
         pen=(painter.pen());
         hasPen=true;
     }
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawRect(rect.normalized());
 }
 
@@ -65,6 +66,7 @@ void Ellipse::draw(QPainter& painter){
         pen=(painter.pen());
         hasPen=true;
     }
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawEllipse(rect.normalized());
 }
 
@@ -112,6 +114,7 @@ void Line::draw(QPainter& painter){
         pen=(painter.pen());
         hasPen=true;
     }
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.drawLine(lastPoint,nowPoint);
 }
 bool Line::contains(const QPoint& point){

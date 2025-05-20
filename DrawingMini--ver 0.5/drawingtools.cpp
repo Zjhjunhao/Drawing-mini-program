@@ -30,9 +30,8 @@ QPen DrawingTools::Pencil() {
     return QPen(this->color, this->size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 }
 
-QPen DrawingTools::Eraser(QImage& image) {
+QPen DrawingTools::Eraser() {
     QPen epen=QPen(Qt::transparent, this->size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    epen.setBrush(image);
     return epen;
 }
 
@@ -44,21 +43,21 @@ void DrawingTools::setMode(int mode) {
     this->mode=mode;
 }
 
-void DrawingTools::setPen(QImage& image) {
+void DrawingTools::setPen() {
     switch (mode) {
     case 0:
         pen=Pencil();
         break;
     case 1:
-        pen=Eraser(image);
+        pen=Eraser();
         break;
     default:
         pen=ShapePen();
     }
 }
 
-void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPoint& nowPoint,QPoint& lastPoint,int type){
-    setPen(backgroundImage);
+void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& lastPoint,int type){
+    setPen();
     QPainter painter(&drawingImage);
     painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
     painter.setPen(pen);
@@ -101,15 +100,17 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QPo
     }
 }
 
-void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QImage& shapeImage,QPoint& nowPoint,QPoint& lastPoint){
-    setPen(backgroundImage);
+void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& shapeImage,QPoint& nowPoint,QPoint& lastPoint){
+    setPen();
     QPainter painter(&drawingImage);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
     painter.setPen(pen);
     painter.drawLine(lastPoint, nowPoint);
     painter.end();
     painter.begin(&shapeImage);
     painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.setPen(pen);
     painter.drawLine(lastPoint, nowPoint);
     painter.end();
@@ -133,13 +134,6 @@ void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastP
     default:return;
     }
     shape->draw(painter);
-    // if(flag==2){// MouseReleaseEvent中调用，需传回Shape的指针
-    //     emit returnShape(shape);
-    // }
-    // else{
-    //     delete shape;
-    // }
-    // shape=nullptr;
 }
 
 int DrawingTools::getmode(){
