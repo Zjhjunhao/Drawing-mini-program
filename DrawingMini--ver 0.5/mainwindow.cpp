@@ -85,7 +85,11 @@ void MainWindow::openActionSlot(bool firstTimeOpen = false)
             this->setWindowTitle("打开文件: " + fileName);
             ui->statusbar->setVisible(true);
             ui->menubar->setVisible(true);
-            setWindowState(Qt::WindowMaximized);
+
+            double scaleFactor = 0.5; // 缩放比例
+            QSize scaledSize = image.size() * scaleFactor;
+            scaledSize.setHeight(toolbarHeight + scaledSize.height());
+            this->resize(scaledSize);
 
             // QScrollBar* hScroll = ui->horizontalScrollBar;
             // QScrollBar* vScroll = ui->verticalScrollBar;
@@ -229,4 +233,5 @@ void MainWindow::setupDrawingPage(){
     DrawingToolBar *toolBar = new DrawingToolBar(this);
     addToolBar(Qt::TopToolBarArea, toolBar);
     toolBar->setupTools(drawwidget);
+    toolbarHeight = toolBar->sizeHint().height();
 }
