@@ -59,16 +59,31 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     paintAction->setCheckable(true);
     paintAction->setData(5); // 填充模式
 
-    QAction *selectAction = new QAction("选择", this);
+    QAction *selectAction = new QAction(QIcon(":/icons/move.png"), "选择", this);
     selectAction->setToolTip("选择");
     selectAction->setStatusTip("切换到选择");
     selectAction->setCheckable(true);
     selectAction->setData(6); // 选择模式
 
+    QAction *strawAction = new QAction(QIcon(":/icons/straw.png"), "着色器", this);
+    strawAction->setToolTip("着色器");
+    strawAction->setStatusTip("切换到着色器");
+    strawAction->setCheckable(true);
+    strawAction->setData(7); // 着色器模式
+
+    QAction *textAction = new QAction(QIcon(":/icons/text.png"), "文本框", this);
+    textAction->setToolTip("文本框");
+    textAction->setStatusTip("切换到文本框");
+    textAction->setCheckable(true);
+    textAction->setData(8); // 文本框模式
+
+
     //添加动作
     addAction(penAction);
     addAction(eraserAction);
     addAction(paintAction);
+    addAction(strawAction);
+    addAction(textAction);
     addAction(lineAction);
     addAction(rectangleAction);
     addAction(circleAction);
@@ -76,6 +91,8 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
 
     toolGroup->addAction(penAction);
     toolGroup->addAction(eraserAction);
+    toolGroup->addAction(strawAction);
+    toolGroup->addAction(textAction);
     toolGroup->addAction(rectangleAction);
     toolGroup->addAction(circleAction);
     toolGroup->addAction(lineAction);

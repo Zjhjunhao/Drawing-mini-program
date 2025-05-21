@@ -13,9 +13,9 @@ class DrawingTools : public QWidget
     Q_OBJECT
 public:
     explicit DrawingTools(QWidget *parent = nullptr);
-    void DrawingEvent(QImage& drawingImage,QImage& backgroundImage,
+    void DrawingEvent(QImage& drawingImage,
                       QPoint& nowPoint,QPoint& lastPoint,int type=0);//type代表是在MousePressEvent还是MouseMoveEvent中调用的，绘制形状时有用
-    void DrawingEvent(QImage& drawingImage,QImage& backgroundImage,QImage& shapeImage,
+    void DrawingEvent(QImage& drawingImage,QImage& shapeImage,
                       QPoint& nowPoint,QPoint& lastPoint);// 重载使用橡皮时调用的函数
     int getmode();
 private:
@@ -24,9 +24,9 @@ private:
     int mode;//0-> pencil,1->eraser,others->shapes
     QPen pen;
     QPen Pencil();
-    QPen Eraser(QImage& image);
+    QPen Eraser();
     QPen ShapePen();
-    void setPen(QImage& image);
+    void setPen();
 
     Shapes* shape;
 

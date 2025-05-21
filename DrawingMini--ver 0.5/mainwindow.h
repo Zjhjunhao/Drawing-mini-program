@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    int toolbarHeight;
 
 private slots:
     void newActionSlot();   //新建文件槽函数
@@ -28,8 +29,6 @@ private slots:
     void saveActionSlot();  //另存为文件槽函数
     void onNewCanvasRequested();
     void onOpenFileRequested();
-
-
 
 private:
     Ui::MainWindow *ui;
