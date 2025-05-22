@@ -125,7 +125,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     addWidget(spacer);
     QAction *pkuIconAction = new QAction(QIcon(":/icons/pku.png"), "", this);
-    //pkuIconAction->setEnabled(false);
+    pkuIconAction->setEnabled(false);
     pkuIconAction->setToolTip("北京大学");
     // connect(pkuIconAction, &QAction::triggered, this, [this]() {
     // });
@@ -134,6 +134,15 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     //连接工具栏信号到绘图控件
     connect(this, &DrawingToolBar::colorChanged, drawingWidget->pen, &DrawingTools::setColor);
     connect(this, &DrawingToolBar::toolModeChanged, drawingWidget->pen, &DrawingTools::setMode);
+    setIconSize(QSize{32,32});
+
+    // 工具栏背景
+    // QString styleSheet = "QToolBar {"
+    //                               "    background-image: url(:/icons/background.png);"
+    //                               "    background-repeat: repeat-x;"
+    //                               "    background-position: 0 -1000px;"
+    //                               "}";
+    // setStyleSheet(styleSheet);
 }
 
 QWidget* DrawingToolBar::createColorPalette()
@@ -192,3 +201,4 @@ void DrawingToolBar::onColorSelected()
         emit colorChanged(newColor);
     }
 }
+

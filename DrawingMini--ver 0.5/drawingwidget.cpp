@@ -28,8 +28,8 @@ DrawingWidget::DrawingWidget(QWidget *parent)
     // 初始化视口
     viewportX = 0;
     viewportY = 0;
-    viewportWidth = originalImage.width();
-    viewportHeight = originalImage.height();
+    viewportWidth = static_cast<int>(originalImage.width());
+    viewportHeight = static_cast<int>(originalImage.height());
 
     scaleFactor = 1;
     drawing = false;
@@ -58,14 +58,14 @@ QPoint DrawingWidget::convertToOriginalCoordinates(const QPoint& point)
 
 void DrawingWidget::adjustViewport()
 {
-    const int maxX = qMax(0, backgroundImage.width() - viewportWidth);
-    const int maxY = qMax(0, backgroundImage.height() - viewportHeight);
+    const int maxX = qMax(0, (backgroundImage.width() - viewportWidth));
+    const int maxY = qMax(0, (backgroundImage.height() - viewportHeight));
     viewportX = qBound(0, viewportX, maxX);
     viewportY = qBound(0, viewportY, maxY);
-    int centerX = viewportX + viewportWidth / 2;
-    int centerY = viewportY + viewportHeight / 2;
-    viewportX = centerX - viewportWidth / 2;
-    viewportY = centerY - viewportHeight / 2;
+    int centerX = static_cast<int>(viewportX + viewportWidth / 2);
+    int centerY = static_cast<int>(viewportY + viewportHeight / 2);
+    viewportX = static_cast<int>(centerX - viewportWidth / 2);
+    viewportY = static_cast<int>(centerY - viewportHeight / 2);
 }
 
 void DrawingWidget::mousePressEvent(QMouseEvent *event)
@@ -86,7 +86,6 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
                 }
             }
             QPainter painter(&tempShape);
-            painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
             for(auto it=shapes.begin();it!=shapes.end();++it){
                 painter.setPen((*it)->pen);
                 (*it)->draw(painter);
@@ -97,8 +96,16 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
         }
         QImage tempImage=drawingImage.copy();
         QPainter painter(&tempImage);
-        painter.drawImage(0,0,tempShape);
-        pen->DrawingEvent(tempImage, lastPoint, lastPoint, 1);
+        if(pen->getmode()!=5){
+            tempImage.fill(QColor(0,0,0,0));
+
+            painter.drawImage(0,0,tempShape);
+            painter.end();
+            pen->DrawingEvent(tempImage, lastPoint, lastPoint, 1);
+        }
+        else{
+            pen->DrawingEvent(drawingImage,shapeImage,lastPoint,lastPoint);
+        }
         update();
         qDebug() << "Start drawing at:" << lastPoint;
     }
@@ -107,14 +114,14 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
 void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint currentPoint = convertToOriginalCoordinates(event->pos());
-    if ((event->buttons() & Qt::LeftButton) && drawing) {
+    if ((event->buttons() & Qt::LeftButton) && drawing && pen->getmode()!=5) {// fill时不调用
         if(pen->getmode()==0){// pencil，普通绘画
             pen->DrawingEvent(drawingImage, currentPoint, lastPoint);
         }
         else if(pen->getmode()==1){// eraser,橡皮擦
             pen->DrawingEvent(drawingImage,shapeImage, currentPoint, lastPoint);
         }
-        else{// 形状
+        else{// 形状 or select
             pen->DrawingEvent(shapeImage, currentPoint, lastPoint);
         }
         update();
@@ -149,6 +156,9 @@ void DrawingWidget::mouseReleaseEvent(QMouseEvent *event)
         else if(pen->getmode()==1){// eraser,橡皮擦
             pen->DrawingEvent(drawingImage,shapeImage, currentPoint, lastPoint);
         }
+        else if(pen->getmode()==5){// fill,无事发生
+
+        }
         else{// 形状
             pen->DrawingEvent(shapeImage, currentPoint, lastPoint,2);
         }
@@ -156,7 +166,7 @@ void DrawingWidget::mouseReleaseEvent(QMouseEvent *event)
         QPainter painter(&originalImage);
         painter.drawImage(0,0,drawingImage);
         painter.drawImage(0,0,shapeImage);
-        qDebug() << "Stop drawing"<<shapes.size();
+        qDebug() << "Stop drawing";
     }
 }
 
@@ -165,8 +175,8 @@ void DrawingWidget::paintEvent(QPaintEvent *)
     QPainter painter(this);
     QRect viewportRect(viewportX, viewportY, viewportWidth, viewportHeight);
     painter.drawImage(rect(), backgroundImage, viewportRect);
-    painter.drawImage(rect(), shapeImage, viewportRect);
     painter.drawImage(rect(), drawingImage, viewportRect);
+    painter.drawImage(rect(), shapeImage, viewportRect);
 
 }
 
@@ -191,8 +201,8 @@ void DrawingWidget::clear()
     // 重置视口到初始状态
     viewportX = 0;
     viewportY = 0;
-    viewportWidth = originalImage.width();
-    viewportHeight = originalImage.height();
+    viewportWidth = static_cast<int>(originalImage.width());
+    viewportHeight = static_cast<int>(originalImage.height());
 
     // 调整视口以确保在有效范围内
     adjustViewport();
@@ -227,10 +237,10 @@ void DrawingWidget::setBackgroundImage(const QImage& image, bool keepOriginalSiz
         drawingImage = originalImage.copy();
 
         // 初始化视口
-        viewportWidth = image.width();
-        viewportHeight = image.height();
-        viewportX = (image.width() - viewportWidth) / 2;
-        viewportY = (image.height() - viewportHeight) / 2;
+        viewportWidth = static_cast<int>(image.width());
+        viewportHeight = static_cast<int>(image.height());
+        viewportX = static_cast<int>((image.width() - viewportWidth) / 2);
+        viewportY = static_cast<int>((image.height() - viewportHeight) / 2);
     } else {
         // 缩放适应现有画布
         backgroundImage = image.scaled(originalImage.size(),

@@ -1,6 +1,7 @@
 #include "drawingtools.h"
 #include <QDebug>
-#include<cmath>
+#include <cmath>
+#include <stack>
 
 DrawingTools::DrawingTools(QWidget *parent)
     : QWidget{parent}
@@ -59,15 +60,15 @@ void DrawingTools::setPen() {
 void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& lastPoint,int type){
     setPen();
     QPainter painter(&drawingImage);
-    //painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
     painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform,size!=2);
     painter.setPen(pen);
-    if(this->mode==0){//pencil or eraser
+    if(this->mode==0){//pencil
         QPoint alignedLastPoint(lastPoint.x() + 0.5, lastPoint.y() + 0.5);
         QPoint alignedNowPoint(nowPoint.x() + 0.5, nowPoint.y() + 0.5);
         painter.drawLine(alignedLastPoint, alignedNowPoint);
         //painter.drawLine(lastPoint, nowPoint);
         lastPoint = nowPoint;
+        painter.end();
     }
     else{//shapes
         if(type==1){//MousePressEvent中传入未绘制前的画布，需保存
@@ -83,6 +84,7 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
             shape->draw(painter);
             lastPoint=nowPoint;
             if(type==2){
+                painter.end();
                 shape->setSelected(false,drawingImage);
                 shape=nullptr;
             }
@@ -93,6 +95,7 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
             painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
             ShapeDrawing(painter,nowPoint,lastPoint);
             if(type==2&&shape != nullptr){
+                painter.end();
                 emit returnShape(shape);
                 shape->setSelected(false,drawingImage);
             }
@@ -106,19 +109,28 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
 
 void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& shapeImage,QPoint& nowPoint,QPoint& lastPoint){
     setPen();
-    QPainter painter(&drawingImage);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
-    painter.setPen(pen);
-    painter.drawLine(lastPoint, nowPoint);
-    painter.end();
-    painter.begin(&shapeImage);
-    painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.setPen(pen);
-    painter.drawLine(lastPoint, nowPoint);
-    painter.end();
-    lastPoint = nowPoint;
+    if(mode==5){//fill
+        QImage temp=drawingImage.copy();
+        QPainter painter(&temp);
+        painter.drawImage(0,0,shapeImage);
+        painter.end();
+        scanLineFill(drawingImage,temp,nowPoint);
+    }
+    else{// eraser
+        QPainter painter(&drawingImage);
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+        painter.setPen(pen);
+        painter.drawLine(lastPoint, nowPoint);
+        painter.end();
+        painter.begin(&shapeImage);
+        painter.setRenderHint(QPainter::Antialiasing); // 抗锯齿
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        painter.setPen(pen);
+        painter.drawLine(lastPoint, nowPoint);
+        painter.end();
+        lastPoint = nowPoint;
+    }
 }
 
 void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint){
@@ -142,5 +154,62 @@ void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastP
 
 int DrawingTools::getmode(){
     return mode;
+}
+
+inline bool isSameColor(const QColor &c1, const QColor &c2) {
+    int dr = qAbs(c1.red() - c2.red());
+    int dg = qAbs(c1.green() - c2.green());
+    int db = qAbs(c1.blue() - c2.blue());
+    int da = qAbs(c1.alpha()-c2.alpha());
+    return (dr + dg + db+da)<=30;
+}
+
+void DrawingTools::scanLineFill(QImage &drawingImage,QImage& composedImage, QPoint& point){
+    const QColor &targetColor=composedImage.pixelColor(point);
+    const QColor &replaceColor=color;
+    int x=point.x();
+    int y=point.y();
+
+    if (targetColor == replaceColor)
+        return;
+    std::stack<std::pair<int, int>> pixelStack;
+    pixelStack.push({x, y});
+    while (!pixelStack.empty()) {
+        auto [currentX, currentY] = pixelStack.top();
+        pixelStack.pop();
+        // 向上填充
+        int y1 = currentY;
+        while (y1 >= 0 && isSameColor(composedImage.pixelColor(currentX, y1), targetColor)) {
+            drawingImage.setPixelColor(currentX, y1, replaceColor);  // 直接修改像素
+            composedImage.setPixelColor(currentX, y1, replaceColor);
+            y1--;
+        }
+        y1++;
+
+        // 向下填充
+        int y2 = currentY + 1;
+        while (y2 < drawingImage.height() && isSameColor(composedImage.pixelColor(currentX, y2), targetColor)) {
+            drawingImage.setPixelColor(currentX, y2, replaceColor);  // 直接修改像素
+            composedImage.setPixelColor(currentX, y1, replaceColor);
+            y2++;
+        }
+        y2--;
+        // 处理左右边界
+        for (int dir : {-1, 1}) {
+            int xDir = currentX + dir;
+            if (xDir < 0 || xDir >= drawingImage.width())
+                continue;
+
+            for (int yScan = y1; yScan <= y2; yScan++) {
+                if (isSameColor(composedImage.pixelColor(xDir, yScan), targetColor)) {
+                    if ((yScan == y1 || !isSameColor(composedImage.pixelColor(xDir, yScan - 1), replaceColor)) &&
+                        (yScan == y2 || !isSameColor(composedImage.pixelColor(xDir, yScan + 1), replaceColor))) {
+                        pixelStack.push({xDir, yScan});
+                    }
+                }
+            }
+        }
+
+    }
 }
 

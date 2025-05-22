@@ -157,7 +157,7 @@ void MainWindow::setupDrawingPage(){
     leftLayout->setContentsMargins(5, 5, 5, 5);
 
     QSlider *sizeSlider = new QSlider(Qt::Vertical, leftPanel);
-    sizeSlider->setRange(1, 50);
+    sizeSlider->setRange(2, 75);
     sizeSlider->setValue(3);
     leftLayout->addWidget(sizeSlider);
 
