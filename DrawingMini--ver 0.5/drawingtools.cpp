@@ -10,6 +10,7 @@ DrawingTools::DrawingTools(QWidget *parent)
     this->size = 5;
     this->mode = 0; // 默认模式为铅笔
     this->pen = Pencil();
+    this->lastUsedMode = 0;
     shape=nullptr;
     setMouseTracking(true);
 }
@@ -41,6 +42,9 @@ QPen DrawingTools::ShapePen(){
 }
 
 void DrawingTools::setMode(int mode) {
+    if (this->mode != 7) {
+        lastUsedMode = this->mode;
+    }
     this->mode=mode;
 }
 
@@ -86,6 +90,7 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
             if(type==2){
                 painter.end();
                 shape->setSelected(false,drawingImage);
+                tempImage = drawingImage.copy();
                 shape=nullptr;
             }
         }
@@ -98,6 +103,7 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
                 painter.end();
                 emit returnShape(shape);
                 shape->setSelected(false,drawingImage);
+                tempImage = drawingImage.copy();
             }
             else{
                 delete shape;
@@ -130,6 +136,26 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QImage& shapeImage,QPoint& 
         painter.drawLine(lastPoint, nowPoint);
         painter.end();
         lastPoint = nowPoint;
+    }
+}
+
+void DrawingTools::ColorPicker(QImage& drawingImage,QImage& shapeImage,QPoint& nowPoint){
+    if (nowPoint.x() >= 0 && nowPoint.x() < drawingImage.width() &&
+        nowPoint.y() >= 0 && nowPoint.y() < drawingImage.height()) {
+        QRgb pixelShapeColor = shapeImage.pixel(nowPoint);
+        QRgb pixelColor = drawingImage.pixel(nowPoint);
+        QColor selectedColor(pixelColor);
+        QColor selectedShapeColor(pixelShapeColor);
+        //qDebug() << selectedShapeColor.name();
+        if(selectedShapeColor.name() == "#000000"){
+            this->color = selectedColor;
+        }else{
+            this->color = selectedShapeColor;
+        }
+
+        if (lastUsedMode != 7) {
+            emit toolModeChanged(lastUsedMode);
+        }
     }
 }
 

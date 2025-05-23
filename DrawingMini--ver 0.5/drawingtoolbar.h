@@ -15,11 +15,13 @@ public:
     explicit DrawingToolBar(QWidget *parent = nullptr);
     void setupTools(DrawingWidget *drawingWidget);
     QWidget* createColorPalette();
+    void setSelectedTool(int mode);
 
 signals:
     void colorChanged(const QColor &color);
     void toolModeChanged(int mode);
     void penSizeChanged(int size);
+
 
 
 private slots:

@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <vector>
+#include "drawingtoolbar.h"
 
 namespace Ui {
 class DrawingWidget;
@@ -20,6 +21,7 @@ public:
     ~DrawingWidget();
     // 画笔
     DrawingTools *pen;
+    DrawingToolBar *toolBar;
     void clear();
     // 添加公共访问函数
     void setBackgroundImage(const QImage& image, bool keepOriginalSize = false);
@@ -69,6 +71,7 @@ public slots:
     // 滑动条拖动的槽函数
     void handleHorizontalScroll(double ratio);
     void handleVerticalScroll(double ratio);
+    void setCurrentToolMode(int mode);
 
 signals:
     void pageStepRatio(double ratioH,double ratioV);

@@ -202,3 +202,13 @@ void DrawingToolBar::onColorSelected()
     }
 }
 
+//得到mode的工具并高亮其图标
+void DrawingToolBar::setSelectedTool(int mode)
+{
+    foreach (QAction* action, toolGroup->actions()) {
+        if (action->data().toInt() == mode) {
+            action->setChecked(true);
+            break;
+        }
+    }
+}

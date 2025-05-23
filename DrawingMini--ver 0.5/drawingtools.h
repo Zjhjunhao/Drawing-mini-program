@@ -18,6 +18,8 @@ public:
     void DrawingEvent(QImage& drawingImage,QImage& shapeImage,
                       QPoint& nowPoint,QPoint& lastPoint);// 重载使用橡皮时调用的函数
     int getmode();
+    void ColorPicker(QImage& drawingImage,QImage& shapeImage,QPoint& nowPoint);
+
 private:
     QColor color;
     int size;
@@ -27,13 +29,14 @@ private:
     QPen Eraser();
     QPen ShapePen();
     void setPen();
-
+    int lastUsedMode; //记录上一次的模式
     Shapes* shape;
 
     QImage tempImage;//临时保存drawingImage,绘制形状时有用
 
     void ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint);//形状绘制
     void scanLineFill(QImage &drawingImage,QImage& composedImage, QPoint& point);
+
 
 public slots:
     void setColor(QColor color);
@@ -43,6 +46,7 @@ public slots:
 
 signals:
     void returnShape(Shapes* p);
+    void toolModeChanged(int mode);
 };
 
 #endif // DRAWINGTOOLS_H

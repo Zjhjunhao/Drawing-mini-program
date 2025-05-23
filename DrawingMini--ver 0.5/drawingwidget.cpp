@@ -39,6 +39,11 @@ DrawingWidget::DrawingWidget(QWidget *parent)
     });
 
     connect(this,&DrawingWidget::selectedShape,pen,&DrawingTools::setSelectedShape);
+    connect(pen, &DrawingTools::toolModeChanged, this, &DrawingWidget::setCurrentToolMode);
+    connect(pen, &DrawingTools::toolModeChanged, this, [this](int mode) {
+        toolBar->setSelectedTool(mode);
+        pen->setMode(mode);
+    });
 }
 
 DrawingWidget::~DrawingWidget()
@@ -74,6 +79,11 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
         lastPoint = convertToOriginalCoordinates(event->pos());
         drawing = true;
         QImage tempShape=shapeImage.copy();
+        if (pen->getmode() == 7) {
+            pen->ColorPicker(drawingImage, shapeImage, lastPoint);
+            qDebug() << "Color picked at:" << lastPoint;
+            return;
+        }
         if(pen->getmode()==6){
             tempShape.fill(QColor(0,0,0,0));// 先清空
             Shapes* temp=nullptr;
@@ -323,4 +333,9 @@ void DrawingWidget::handleVerticalScroll(double ratio)
     viewportY = static_cast<int>(((originalImage.height())-viewportHeight)*ratio);
     adjustViewport();
     update();
+}
+
+void DrawingWidget::setCurrentToolMode(int mode)
+{
+    pen->setMode(mode);
 }

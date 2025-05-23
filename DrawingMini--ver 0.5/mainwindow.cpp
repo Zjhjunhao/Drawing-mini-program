@@ -233,6 +233,7 @@ void MainWindow::setupDrawingPage(){
     DrawingToolBar *toolBar = new DrawingToolBar(this);
     addToolBar(Qt::TopToolBarArea, toolBar);
     toolBar->setupTools(drawwidget);
+    drawwidget->toolBar = toolBar;
     toolbarHeight = toolBar->sizeHint().height();
 }
 
