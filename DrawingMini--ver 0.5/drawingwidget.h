@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <vector>
 #include "drawingtoolbar.h"
+#include <QInputDialog>
 
 namespace Ui {
 class DrawingWidget;

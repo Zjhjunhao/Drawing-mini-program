@@ -228,6 +228,7 @@ void MainWindow::setupDrawingPage(){
     });
     connect(sizeSlider, &QSlider::valueChanged, sizeSlider, [this](int value) {
         drawwidget->pen->setSize(value);
+        drawwidget->pen->setTextSize(value * 5); // 设置文本字体大小
     });
     // 使用自定义工具栏
     DrawingToolBar *toolBar = new DrawingToolBar(this);

@@ -13,6 +13,7 @@ DrawingTools::DrawingTools(QWidget *parent)
     this->lastUsedMode = 0;
     shape=nullptr;
     setMouseTracking(true);
+    this->textSize = 200; // 默认字体大小
 }
 
 void DrawingTools::setColor(QColor color) {
@@ -61,6 +62,10 @@ void DrawingTools::setPen() {
     }
 }
 
+void DrawingTools::setTextSize(int size) {
+    this->textSize = size;
+}
+
 void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& lastPoint,int type){
     setPen();
     QPainter painter(&drawingImage);
@@ -72,6 +77,14 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
         painter.drawLine(alignedLastPoint, alignedNowPoint);
         //painter.drawLine(lastPoint, nowPoint);
         lastPoint = nowPoint;
+        painter.end();
+    }
+    else if (this->mode == 8) { //文本框
+        textPosition = nowPoint;
+
+        painter.setFont(QFont("Arial", textSize));
+        painter.setPen(color);
+        painter.drawText(textPosition, text);
         painter.end();
     }
     else{//shapes
@@ -157,6 +170,11 @@ void DrawingTools::ColorPicker(QImage& drawingImage,QImage& shapeImage,QPoint& n
             emit toolModeChanged(lastUsedMode);
         }
     }
+}
+
+void DrawingTools::setText(QString t)
+{
+    text = t;
 }
 
 void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint){
