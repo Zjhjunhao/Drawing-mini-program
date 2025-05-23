@@ -195,6 +195,10 @@ void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastP
         shape=new Line(lastPoint,nowPoint);
         break;
     }
+    case 9:{
+        shape =new Badge(lastPoint,nowPoint,badgeImage);
+        break;
+    }
     default:return;
     }
     shape->draw(painter);
@@ -261,3 +265,7 @@ void DrawingTools::scanLineFill(QImage &drawingImage,QImage& composedImage, QPoi
     }
 }
 
+void DrawingTools::setBadgeImage(const QImage& image)
+{
+    badgeImage = image;
+}

@@ -78,6 +78,11 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     textAction->setCheckable(true);
     textAction->setData(8); // 文本框模式
 
+    QAction *badgeAction = new QAction(QIcon(":/icons/pku.png"), "北大特色贴图", this);
+    badgeAction->setToolTip("北大校徽");
+    badgeAction->setStatusTip("切换到北大校徽");
+    badgeAction->setCheckable(true);
+    badgeAction->setData(9); // 校徽
 
     //添加动作
     addAction(penAction);
@@ -89,6 +94,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     addAction(rectangleAction);
     addAction(circleAction);
     addAction(selectAction);
+    addAction(badgeAction);
 
     toolGroup->addAction(penAction);
     toolGroup->addAction(eraserAction);
@@ -99,6 +105,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     toolGroup->addAction(lineAction);
     toolGroup->addAction(paintAction);
     toolGroup->addAction(selectAction);
+    toolGroup->addAction(badgeAction);
 
     //默认选中铅笔
     penAction->setChecked(true);

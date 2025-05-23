@@ -147,3 +147,52 @@ void Line::changeSelectedWidget(QImage& image){
         painter.drawLine(lastPoint,nowPoint);
     }
 }
+
+Badge::Badge(const QPoint& lastPoint,const QPoint& nowPoint, const QImage& badgeImage)
+    : Shapes(BADGE, lastPoint, nowPoint), badgeImage(badgeImage)
+{
+    rect = QRect(lastPoint, nowPoint);
+}
+
+void Badge::draw(QPainter& painter)
+{
+    if(!hasPen){
+        pen = painter.pen();
+        hasPen = true;
+    }
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawImage(rect.normalized(), badgeImage);
+}
+
+bool Badge::contains(const QPoint& point)
+{
+    return rect.contains(point);
+}
+
+void Badge::move(const QPoint& last,const QPoint& now)
+{
+    lastPoint += (now - last);
+    nowPoint += (now - last);
+    rect = QRect(lastPoint, nowPoint);
+}
+
+void Badge::changeSelectedWidget(QImage& image)
+{
+    QPainter painter(&image);
+    if(selected){
+        QPen tmppen;
+        tmppen.setWidth(3);
+        tmppen.setStyle(Qt::CustomDashLine);
+        tmppen.setDashPattern({5,5});
+        tmppen.setColor([this](){
+            int luminance = qGray(this->pen.color().rgb());
+            return luminance > 128 ? Qt::black : Qt::white;
+        }());
+        painter.setPen(tmppen);
+        painter.drawRect(rect.normalized());
+    }
+    else{
+        painter.setPen(pen);
+        painter.drawImage(rect.normalized(), badgeImage);
+    }
+}
