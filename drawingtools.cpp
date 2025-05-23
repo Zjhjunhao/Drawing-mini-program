@@ -66,10 +66,6 @@ void DrawingTools::setTextSize(int size) {
     this->textSize = size;
 }
 
-QColor DrawingTools::getColor(){
-    return this->color;
-}
-
 void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& lastPoint,int type){
     setPen();
     QPainter painter(&drawingImage);

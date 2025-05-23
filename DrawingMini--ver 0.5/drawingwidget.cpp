@@ -4,6 +4,7 @@
 #include <QStatusBar>
 #include <QDebug>
 #include <QScrollBar>
+#include <QInputDialog>
 
 DrawingWidget::DrawingWidget(QWidget *parent)
     : QWidget(parent)
@@ -104,17 +105,26 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
                 shapes.push_back(temp);
             }
         }
-        QImage tempImage=drawingImage.copy();
-        QPainter painter(&tempImage);
-        if(pen->getmode()!=5){
-            tempImage.fill(QColor(0,0,0,0));
+        if (pen->getmode()==8) { // 文本框模式
+            bool ok;
+            QString text = QInputDialog::getText(this, "输入文本", "请输入要插入的文本：", QLineEdit::Normal, "", &ok);
+            if (ok && !text.isEmpty()) {
+                pen->setText(text);
+                pen->DrawingEvent(drawingImage, lastPoint, lastPoint, 1);
+            }
+        } else {
+            QImage tempImage=drawingImage.copy();
+            QPainter painter(&tempImage);
+            if(pen->getmode()!=5){
+                tempImage.fill(QColor(0,0,0,0));
 
-            painter.drawImage(0,0,tempShape);
-            painter.end();
-            pen->DrawingEvent(tempImage, lastPoint, lastPoint, 1);
-        }
-        else{
-            pen->DrawingEvent(drawingImage,shapeImage,lastPoint,lastPoint);
+                painter.drawImage(0,0,tempShape);
+                painter.end();
+                pen->DrawingEvent(tempImage, lastPoint, lastPoint, 1);
+            }
+            else{
+                pen->DrawingEvent(drawingImage,shapeImage,lastPoint,lastPoint);
+            }
         }
         update();
         qDebug() << "Start drawing at:" << lastPoint;
@@ -167,6 +177,9 @@ void DrawingWidget::mouseReleaseEvent(QMouseEvent *event)
             pen->DrawingEvent(drawingImage,shapeImage, currentPoint, lastPoint);
         }
         else if(pen->getmode()==5){// fill,无事发生
+
+        }
+        else if(pen->getmode()==8) {// 文本框,无事发生
 
         }
         else{// 形状

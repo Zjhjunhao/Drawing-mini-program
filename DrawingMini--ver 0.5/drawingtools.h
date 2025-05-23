@@ -20,6 +20,8 @@ public:
     int getmode();
     void ColorPicker(QImage& drawingImage,QImage& shapeImage,QPoint& nowPoint);
     QColor getColor();
+    void setText(QString t);
+    void setTextSize(int size); //设置文本字体大小
 
 private:
     QColor color;
@@ -38,6 +40,10 @@ private:
     void ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint);//形状绘制
     void scanLineFill(QImage &drawingImage,QImage& composedImage, QPoint& point);
 
+    //文本框相关
+    QString text;
+    QPoint textPosition;
+    int textSize;
 
 public slots:
     void setColor(QColor color);

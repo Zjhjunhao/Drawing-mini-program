@@ -164,12 +164,12 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     setIconSize(QSize{32,32});
 
     // 工具栏背景
-    QString styleSheet = "QToolBar {"
-                                  "    background-image: url(:/icons/background.png);"
-                                  "    background-repeat: repeat-x;"
-                                  "    background-position: 0 -1000px;"
-                                  "}";
-    setStyleSheet(styleSheet);
+    // QString styleSheet = "QToolBar {"
+    //                               "    background-image: url(:/icons/background.png);"
+    //                               "    background-repeat: repeat-x;"
+    //                               "    background-position: 0 -1000px;"
+    //                               "}";
+    // setStyleSheet(styleSheet);
 
 
 }
