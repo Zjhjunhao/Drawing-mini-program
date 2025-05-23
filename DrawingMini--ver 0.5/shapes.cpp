@@ -148,35 +148,35 @@ void Line::changeSelectedWidget(QImage& image){
     }
 }
 
-Badge::Badge(const QPoint& lastPoint,const QPoint& nowPoint, const QImage& badgeImage)
-    : Shapes(BADGE, lastPoint, nowPoint), badgeImage(badgeImage)
+PKUSticker::PKUSticker(const QPoint& lastPoint,const QPoint& nowPoint, const QImage& stickerImage)
+    : Shapes(PKUSTICKER, lastPoint, nowPoint), stickerImage(stickerImage)
 {
     rect = QRect(lastPoint, nowPoint);
 }
 
-void Badge::draw(QPainter& painter)
+void PKUSticker::draw(QPainter& painter)
 {
     if(!hasPen){
         pen = painter.pen();
         hasPen = true;
     }
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawImage(rect.normalized(), badgeImage);
+    //painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawImage(rect.normalized(), stickerImage);
 }
 
-bool Badge::contains(const QPoint& point)
+bool PKUSticker::contains(const QPoint& point)
 {
     return rect.contains(point);
 }
 
-void Badge::move(const QPoint& last,const QPoint& now)
+void PKUSticker::move(const QPoint& last,const QPoint& now)
 {
     lastPoint += (now - last);
     nowPoint += (now - last);
     rect = QRect(lastPoint, nowPoint);
 }
 
-void Badge::changeSelectedWidget(QImage& image)
+void PKUSticker::changeSelectedWidget(QImage& image)
 {
     QPainter painter(&image);
     if(selected){
@@ -193,6 +193,6 @@ void Badge::changeSelectedWidget(QImage& image)
     }
     else{
         painter.setPen(pen);
-        painter.drawImage(rect.normalized(), badgeImage);
+        painter.drawImage(rect.normalized(), stickerImage);
     }
 }

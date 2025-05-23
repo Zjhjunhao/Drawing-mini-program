@@ -14,5 +14,7 @@
         <file>icons/text.png</file>
         <file>icons/straw.png</file>
         <file>icons/topic.png</file>
+        <file>icons/pkuname.png</file>
+        <file>icons/boya.png</file>
     </qresource>
 </RCC>

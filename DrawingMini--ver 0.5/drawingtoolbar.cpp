@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QWidget>
 #include <QFrame>
+#include <QLabel>
 
 DrawingToolBar::DrawingToolBar(QWidget *parent) : QToolBar(parent)
 {
@@ -78,11 +79,17 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     textAction->setCheckable(true);
     textAction->setData(8); // 文本框模式
 
-    QAction *badgeAction = new QAction(QIcon(":/icons/pku.png"), "北大特色贴图", this);
+    QAction *badgeAction = new QAction(QIcon(":/icons/pku.png"), "北大校徽", this);
     badgeAction->setToolTip("北大校徽");
     badgeAction->setStatusTip("切换到北大校徽");
     badgeAction->setCheckable(true);
     badgeAction->setData(9); // 校徽
+
+    QAction *boyaAction = new QAction(QIcon(":/icons/boya.png"), "博雅塔", this);
+    boyaAction->setToolTip("博雅塔");
+    boyaAction->setStatusTip("切换到博雅塔");
+    boyaAction->setCheckable(true);
+    boyaAction->setData(10); // 博雅塔
 
     //添加动作
     addAction(penAction);
@@ -94,7 +101,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     addAction(rectangleAction);
     addAction(circleAction);
     addAction(selectAction);
-    addAction(badgeAction);
+
 
     toolGroup->addAction(penAction);
     toolGroup->addAction(eraserAction);
@@ -106,6 +113,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     toolGroup->addAction(paintAction);
     toolGroup->addAction(selectAction);
     toolGroup->addAction(badgeAction);
+    toolGroup->addAction(boyaAction);
 
     //默认选中铅笔
     penAction->setChecked(true);
@@ -151,24 +159,29 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     colorAction = new QAction(QIcon(":/icons/color.png"), "颜色", this);
     colorAction->setToolTip("选择画笔颜色");
     addAction(colorAction);
-
+    addSeparator();
+    addAction(badgeAction);
+    addAction(boyaAction);
     //连接颜色选择信号
     connect(colorAction, &QAction::triggered, this, &DrawingToolBar::onColorSelected);
 
     QWidget* spacerToEnd = new QWidget(this);
     spacerToEnd->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     addWidget(spacerToEnd);
-    QAction *pkuIconAction = new QAction(QIcon(":/icons/pku.png"), "", this);
-    pkuIconAction->setEnabled(false);
-    pkuIconAction->setToolTip("北京大学");
-    // connect(pkuIconAction, &QAction::triggered, this, [this]() {
-    // });
-    addAction(pkuIconAction);
 
+
+    QLabel* pkuLabel = new QLabel(this);
+    QPixmap pkuPixmap(":/icons/pkuname.png"); // 确保资源文件中有这个图片
+    if (!pkuPixmap.isNull()) {
+        pkuLabel->setPixmap(pkuPixmap.scaledToHeight(32, Qt::SmoothTransformation));
+        pkuLabel->setToolTip("北京大学");
+        addWidget(pkuLabel);
+    }
     //连接工具栏信号到绘图控件
     connect(this, &DrawingToolBar::colorChanged, drawingWidget->pen, &DrawingTools::setColor);
     connect(this, &DrawingToolBar::toolModeChanged, drawingWidget->pen, &DrawingTools::setMode);
     setIconSize(QSize{32,32});
+
 
     // 工具栏背景
     // QString styleSheet = "QToolBar {"

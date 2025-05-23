@@ -236,7 +236,8 @@ void MainWindow::setupDrawingPage(){
     toolBar->setupTools(drawwidget);
     drawwidget->toolBar = toolBar;
     toolbarHeight = toolBar->sizeHint().height();
-
-    QImage badgeImage(":/icons/pku.png"); // 加载北大特色贴图
-    drawwidget->pen->setBadgeImage(badgeImage);
+    // 加载北大特色贴图
+    QImage badgeImage(":/icons/pku.png");
+    QImage boyaImage(":/icons/boya.png");
+    drawwidget->pen->setPKUImage(badgeImage, boyaImage);
 }

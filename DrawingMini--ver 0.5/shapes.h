@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QImage>
 
-enum ShapeType { RECTANGLE, ELLIPSE, LINE, BADGE };
+enum ShapeType { RECTANGLE, ELLIPSE, LINE, BADGE, PKUSTICKER };
 
 class Shapes
 {
@@ -79,16 +79,16 @@ public:
     void changeSelectedWidget(QImage& image);
 };
 
-class Badge : public Shapes
+class PKUSticker : public Shapes
 {
 public:
-    Badge(const QPoint& lastPoint,const QPoint& nowPoint, const QImage& badgeImage);
+    PKUSticker(const QPoint& lastPoint,const QPoint& nowPoint, const QImage& stickerImage);
     void draw(QPainter& painter);
     bool contains(const QPoint& point);
     void move(const QPoint& last,const QPoint& now);
     void changeSelectedWidget(QImage& image);
 
 private:
-    QImage badgeImage;
+    QImage stickerImage;
 };
 #endif // SHAPES_H

@@ -196,7 +196,11 @@ void DrawingTools::ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastP
         break;
     }
     case 9:{
-        shape =new Badge(lastPoint,nowPoint,badgeImage);
+        shape =new PKUSticker(lastPoint,nowPoint,badgeImage);
+        break;
+    }
+    case 10:{
+        shape =new PKUSticker(lastPoint,nowPoint,boyaImage);
         break;
     }
     default:return;
@@ -265,7 +269,8 @@ void DrawingTools::scanLineFill(QImage &drawingImage,QImage& composedImage, QPoi
     }
 }
 
-void DrawingTools::setBadgeImage(const QImage& image)
+void DrawingTools::setPKUImage(const QImage& badgeimage, const QImage& boyaimage)
 {
-    badgeImage = image;
+    badgeImage = badgeimage;
+    boyaImage = boyaimage;
 }
