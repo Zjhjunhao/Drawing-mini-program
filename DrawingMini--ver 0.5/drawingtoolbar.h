@@ -1,6 +1,7 @@
 #ifndef DRAWINGTOOLBAR_H
 #define DRAWINGTOOLBAR_H
 
+#include "qframe.h"
 #include <QToolBar>
 #include <QActionGroup>
 #include <QSlider>
@@ -15,7 +16,8 @@ public:
     explicit DrawingToolBar(QWidget *parent = nullptr);
     void setupTools(DrawingWidget *drawingWidget);
     QWidget* createColorPalette();
-    void setSelectedTool(int mode);
+    void setSelectedTool(int mode, QColor newColor);
+    void updateCurrentColorIndicator(QFrame* indicatorFrame);
 
 signals:
     void colorChanged(const QColor &color);

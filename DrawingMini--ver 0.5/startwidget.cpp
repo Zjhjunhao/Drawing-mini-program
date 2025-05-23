@@ -12,25 +12,35 @@ StartWidget::StartWidget(QWidget *parent)
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
     QWidget *leftPanel = new QWidget(this);
-    leftPanel->setFixedWidth(200);
+    leftPanel->setFixedWidth(250);
 
     QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-    leftLayout->setContentsMargins(40, 0, 0, 0);
+    leftLayout->setContentsMargins(50, 0, 0, 0);
 
-    QLabel *verticalLabel = new QLabel("未\n名\n画\n板", leftPanel);
-    verticalLabel->setAlignment(Qt::AlignCenter);
-    //字体
-    QFont verticalFont = verticalLabel->font();
-    verticalFont.setPointSize(60);
-    verticalFont.setBold(true);
-    verticalLabel->setFont(verticalFont);
+    // QLabel *verticalLabel = new QLabel("未\n名\n画\n板", leftPanel);
+    // verticalLabel->setAlignment(Qt::AlignCenter);
+    // //字体
+    // QFont verticalFont = verticalLabel->font();
+    // verticalFont.setPointSize(60);
+    // verticalFont.setBold(true);
+    // verticalLabel->setFont(verticalFont);
 
-    //半透明背景
-    verticalLabel->setStyleSheet("background-color: rgba(255, 255, 255, 128);"
+    // //半透明背景
+    // verticalLabel->setStyleSheet("background-color: rgba(255, 255, 255, 128);"
+    //                              "border-radius: 8px;"
+    //                              "padding: 10px;");
+
+    QLabel *imageLabel = new QLabel(leftPanel);
+    QPixmap pixmap(":/icons/topic.png"); // 替换为你的图片资源路径
+    pixmap = pixmap.scaled(130, 380);
+    imageLabel->setPixmap(pixmap);
+    imageLabel->setScaledContents(true);
+
+    imageLabel->setStyleSheet("background-color: rgba(255, 255, 255, 128);"
                                  "border-radius: 8px;"
-                                 "padding: 10px;");
+                                  "padding: 0px;");
 
-    leftLayout->addWidget(verticalLabel, 0, Qt::AlignCenter);
+    leftLayout->addWidget(imageLabel, 0, Qt::AlignCenter);
 
     //按钮
     QWidget *rightPanel = new QWidget(this);

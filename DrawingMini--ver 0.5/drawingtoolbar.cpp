@@ -7,6 +7,7 @@
 #include <QButtonGroup>
 #include <QHBoxLayout>
 #include <QWidget>
+#include <QFrame>
 
 DrawingToolBar::DrawingToolBar(QWidget *parent) : QToolBar(parent)
 {
@@ -107,6 +108,36 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
         emit toolModeChanged(action->data().toInt());
     });
 
+    // 设置固定宽度作为间隔
+    QWidget* spacer = new QWidget(this);
+    spacer->setFixedWidth(20);
+
+
+    //添加基本颜色选择按钮
+    addSeparator();
+
+    addWidget(spacer);
+
+    QFrame* indicatorFrame = new QFrame(this);
+    indicatorFrame->setFrameShape(QFrame::Box);
+    indicatorFrame->setFixedSize(25, 25);
+    indicatorFrame->setLineWidth(2);
+
+    //设置初始颜色
+    updateCurrentColorIndicator(indicatorFrame);
+
+    //连接颜色变化信号，更新指示器颜色
+    connect(this, &DrawingToolBar::colorChanged, this, [indicatorFrame, this]() {
+        updateCurrentColorIndicator(indicatorFrame);
+    });
+    addWidget(indicatorFrame);
+
+    //添加空隙
+
+    addWidget(spacer);
+
+    addWidget(createColorPalette());
+
     addSeparator();
 
     //颜色选择动作
@@ -117,13 +148,9 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     //连接颜色选择信号
     connect(colorAction, &QAction::triggered, this, &DrawingToolBar::onColorSelected);
 
-    //添加基本颜色选择按钮
-    addSeparator();
-    addWidget(createColorPalette());
-
-    QWidget* spacer = new QWidget(this);
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    addWidget(spacer);
+    QWidget* spacerToEnd = new QWidget(this);
+    spacerToEnd->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    addWidget(spacerToEnd);
     QAction *pkuIconAction = new QAction(QIcon(":/icons/pku.png"), "", this);
     pkuIconAction->setEnabled(false);
     pkuIconAction->setToolTip("北京大学");
@@ -137,20 +164,31 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     setIconSize(QSize{32,32});
 
     // 工具栏背景
-    // QString styleSheet = "QToolBar {"
-    //                               "    background-image: url(:/icons/background.png);"
-    //                               "    background-repeat: repeat-x;"
-    //                               "    background-position: 0 -1000px;"
-    //                               "}";
-    // setStyleSheet(styleSheet);
+    QString styleSheet = "QToolBar {"
+                                  "    background-image: url(:/icons/background.png);"
+                                  "    background-repeat: repeat-x;"
+                                  "    background-position: 0 -1000px;"
+                                  "}";
+    setStyleSheet(styleSheet);
+
+
+}
+
+void DrawingToolBar::updateCurrentColorIndicator(QFrame* indicatorFrame)
+{
+    // 设置颜色指示器的背景色
+    QString styleSheet = QString("background-color: %1;").arg(currentColor.name());
+    indicatorFrame->setStyleSheet(styleSheet);
+    indicatorFrame->setToolTip(QString("当前颜色: %1").arg(currentColor.name()));
 }
 
 QWidget* DrawingToolBar::createColorPalette()
 {
     QWidget* paletteWidget = new QWidget(this);
-    QHBoxLayout* layout = new QHBoxLayout(paletteWidget);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(2);
+    //QHBoxLayout* layout = new QHBoxLayout(paletteWidget);
+    QGridLayout* layout = new QGridLayout(paletteWidget);
+    layout->setContentsMargins(8, 5, 8, 5);
+    layout->setSpacing(4);
 
     //创建颜色按钮组
     QButtonGroup* colorButtonGroup = new QButtonGroup(this);
@@ -162,34 +200,75 @@ QWidget* DrawingToolBar::createColorPalette()
         Qt::yellow, Qt::cyan, Qt::magenta, Qt::gray, Qt::darkGray,
         Qt::lightGray, QColor(255, 165, 0), // 橙色
         QColor(128, 0, 128), // 紫色
-        QColor(139, 69, 19), // 棕色
         QColor(255, 192, 203) // 粉色
     };
 
     //创建颜色按钮
-    for (const QColor& color : basicColors) {
-        QToolButton* colorButton = new QToolButton(paletteWidget);
-        colorButton->setFixedSize(25, 25);
-        colorButton->setCheckable(true);
-        colorButton->setStyleSheet(QString("background-color: %1; border: 1px solid #888;").arg(color.name()));
-        colorButton->setToolTip(color.name());
-        QString colorName = color.name();
-        colorButton->setStatusTip(QString("切换到%1").arg(colorName));
+    // for (const QColor& color : basicColors) {
+    //     QToolButton* colorButton = new QToolButton(paletteWidget);
+    //     colorButton->setFixedSize(25, 25);
+    //     colorButton->setCheckable(true);
+    //     colorButton->setStyleSheet(QString("background-color: %1; border: 1px solid #888;").arg(color.name()));
+    //     colorButton->setToolTip(color.name());
+    //     QString colorName = color.name();
+    //     colorButton->setStatusTip(QString("切换到%1").arg(colorName));
 
-        // 存储颜色信息
+    //     // 存储颜色信息
+    //     colorButton->setProperty("color", color);
+
+    //     // 添加到布局和按钮组
+    //     layout->addWidget(colorButton);
+    //     colorButtonGroup->addButton(colorButton);
+
+    //     // 连接按钮点击事件
+    //     connect(colorButton, &QToolButton::clicked, this, [this, colorButton]() {
+    //         QColor selectedColor = colorButton->property("color").value<QColor>();
+    //         currentColor = selectedColor;
+    //         emit colorChanged(selectedColor);
+    //     });
+    // }
+    int colorsPerRow = (basicColors.size() + 1) / 2;
+
+    for (int i = 0; i < basicColors.size(); ++i) {
+        const QColor& color = basicColors[i];
+        QToolButton* colorButton = new QToolButton(paletteWidget);
+        colorButton->setFixedSize(20, 20);
+        colorButton->setCheckable(true);
+        //colorButton->setStyleSheet(QString("background-color: %1; border: 1px solid #888;").arg(color.name()));
+        QString styleSheet = QString(
+                                 "QToolButton {"
+                                 "    background-color: %1;"
+                                 "    border: 1px solid #888;"
+                                 "    border-radius: 3px;"
+                                 "}"
+                                 "QToolButton:checked {"
+                                 "    border: 2px solid #333;"
+                                 "}"
+                                 "QToolButton:hover {"
+                                 "    border: 2px solid #555;"
+                                 "    transform: scale(1.1);"
+                                 "}"
+                                 ).arg(color.name());
+        colorButton->setStyleSheet(styleSheet);
+        colorButton->setToolTip(color.name());
+        colorButton->setStatusTip(QString("切换到%1").arg(color.name()));
+
         colorButton->setProperty("color", color);
 
-        // 添加到布局和按钮组
-        layout->addWidget(colorButton);
+        int row = i / colorsPerRow;
+        int col = i % colorsPerRow;
+
+        //添加到布局和按钮组
+        layout->addWidget(colorButton, row, col);
         colorButtonGroup->addButton(colorButton);
 
-        // 连接按钮点击事件
+        //连接按钮点击事件
         connect(colorButton, &QToolButton::clicked, this, [this, colorButton]() {
             QColor selectedColor = colorButton->property("color").value<QColor>();
+            currentColor = selectedColor;
             emit colorChanged(selectedColor);
         });
     }
-
     return paletteWidget;
 }
 
@@ -203,8 +282,10 @@ void DrawingToolBar::onColorSelected()
 }
 
 //得到mode的工具并高亮其图标
-void DrawingToolBar::setSelectedTool(int mode)
+void DrawingToolBar::setSelectedTool(int mode, QColor newColor)
 {
+    currentColor = newColor;
+    emit colorChanged(newColor);
     foreach (QAction* action, toolGroup->actions()) {
         if (action->data().toInt() == mode) {
             action->setChecked(true);

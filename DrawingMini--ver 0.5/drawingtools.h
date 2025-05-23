@@ -19,6 +19,7 @@ public:
                       QPoint& nowPoint,QPoint& lastPoint);// 重载使用橡皮时调用的函数
     int getmode();
     void ColorPicker(QImage& drawingImage,QImage& shapeImage,QPoint& nowPoint);
+    QColor getColor();
 
 private:
     QColor color;

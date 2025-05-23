@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->saveAction, &QAction::triggered, this, &MainWindow::saveActionSlot);
 
     setMouseTracking(true);
-    this->setWindowTitle("绘图小程序");
+    this->setWindowTitle("未名画板");
     resize(1000, 600);
     ui->menubar->setVisible(false);
     ui->statusbar->setVisible(false);

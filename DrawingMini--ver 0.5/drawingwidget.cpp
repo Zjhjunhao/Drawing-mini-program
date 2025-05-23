@@ -41,7 +41,7 @@ DrawingWidget::DrawingWidget(QWidget *parent)
     connect(this,&DrawingWidget::selectedShape,pen,&DrawingTools::setSelectedShape);
     connect(pen, &DrawingTools::toolModeChanged, this, &DrawingWidget::setCurrentToolMode);
     connect(pen, &DrawingTools::toolModeChanged, this, [this](int mode) {
-        toolBar->setSelectedTool(mode);
+        toolBar->setSelectedTool(mode, pen->getColor());
         pen->setMode(mode);
     });
 }
