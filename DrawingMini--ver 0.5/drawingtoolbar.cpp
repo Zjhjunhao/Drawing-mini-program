@@ -165,6 +165,15 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     //连接颜色选择信号
     connect(colorAction, &QAction::triggered, this, &DrawingToolBar::onColorSelected);
 
+    // 删除
+    addSeparator();
+    deleteAction =new QAction("删除",this);
+    deleteAction->setToolTip("删除选中形状");
+    addAction(deleteAction);
+    connect(deleteAction,&QAction::triggered,this,[this](){
+        emit shapeDeleted();
+    });
+
     QWidget* spacerToEnd = new QWidget(this);
     spacerToEnd->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     addWidget(spacerToEnd);
@@ -266,7 +275,6 @@ QWidget* DrawingToolBar::createColorPalette()
                                  "}"
                                  "QToolButton:hover {"
                                  "    border: 2px solid #555;"
-                                 "    transform: scale(1.1);"
                                  "}"
                                  ).arg(color.name());
         colorButton->setStyleSheet(styleSheet);

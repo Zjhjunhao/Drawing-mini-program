@@ -27,26 +27,7 @@ public:
     virtual void move(const QPoint& last,const QPoint& now) = 0;
     virtual ~Shapes()=default;
     void setSelected(bool select,QImage& image);
-    // void printQRectVertices() {
-    //     int x = rect.x();
-    //     int y = rect.y();
-    //     int width = rect.width();
-    //     int height = rect.height();
-
-    //     // 左上角
-    //     QPoint topLeft(x, y);
-    //     // 右上角
-    //     QPoint topRight(x + width - 1, y);
-    //     // 左下角
-    //     QPoint bottomLeft(x, y + height - 1);
-    //     // 右下角
-    //     QPoint bottomRight(x + width - 1, y + height - 1);
-
-    //     qDebug() << "左上角坐标：" << topLeft;
-    //     qDebug() << "右上角坐标：" << topRight;
-    //     qDebug() << "左下角坐标：" << bottomLeft;
-    //     qDebug() << "右下角坐标：" << bottomRight;
-    // }
+    bool isSelected();
 };
 
 class Rectangle:public Shapes

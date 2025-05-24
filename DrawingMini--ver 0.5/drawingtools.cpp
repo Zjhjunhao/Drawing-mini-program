@@ -25,7 +25,6 @@ void DrawingTools::setSize(int size) {
 }
 
 void DrawingTools::setSelectedShape(Shapes* p){
-    qDebug()<<"got it!";
     this->shape=p;
 }
 
@@ -34,8 +33,7 @@ QPen DrawingTools::Pencil() {
 }
 
 QPen DrawingTools::Eraser() {
-    QPen epen=QPen(Qt::transparent, this->size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    return epen;
+    return QPen(Qt::transparent, this->size, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 }
 
 QPen DrawingTools::ShapePen(){
@@ -70,6 +68,10 @@ QColor DrawingTools::getColor(){
     return this->color;
 }
 
+bool DrawingTools::hasShape(){
+    return shape!=nullptr;
+}
+
 void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& lastPoint,int type){
     setPen();
     QPainter painter(&drawingImage);
@@ -79,7 +81,6 @@ void DrawingTools::DrawingEvent(QImage& drawingImage,QPoint& nowPoint,QPoint& la
         QPoint alignedLastPoint(lastPoint.x() + 0.5, lastPoint.y() + 0.5);
         QPoint alignedNowPoint(nowPoint.x() + 0.5, nowPoint.y() + 0.5);
         painter.drawLine(alignedLastPoint, alignedNowPoint);
-        //painter.drawLine(lastPoint, nowPoint);
         lastPoint = nowPoint;
         painter.end();
     }

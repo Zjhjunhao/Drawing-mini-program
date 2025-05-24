@@ -22,6 +22,7 @@ public:
     QColor getColor();
     void setText(QString t);
     void setTextSize(int size); //设置文本字体大小
+    bool hasShape();
 
 private:
     QColor color;

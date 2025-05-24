@@ -8,6 +8,10 @@ void Shapes::setSelected(bool select,QImage& image){
     changeSelectedWidget(image);
 }
 
+bool Shapes::isSelected(){
+    return selected;
+}
+
 Rectangle::Rectangle(const QPoint& lastPoint,const QPoint& nowPoint):Shapes(RECTANGLE,lastPoint,nowPoint)
 {
     rect=QRect(lastPoint,nowPoint);
@@ -36,12 +40,11 @@ void Rectangle::changeSelectedWidget(QImage& image){
     QPainter painter(&image);
     if(selected){
         QPen tmppen;
-        tmppen.setWidth(3);
+        tmppen.setWidth(qMin(3,static_cast<int>(pen.width()+1)/2));
         tmppen.setStyle(Qt::CustomDashLine);
         tmppen.setDashPattern({5,5});
         tmppen.setColor([this](){
             int luminance = qGray(this->pen.color().rgb());
-            // 简单阈值（通常取128，但可根据需要调整）
             return luminance > 128 ? Qt::black : Qt::white;
         }());
         painter.setPen(tmppen);
@@ -87,12 +90,11 @@ void Ellipse::changeSelectedWidget(QImage& image){
     QPainter painter(&image);
     if(selected){
         QPen tmppen;
-        tmppen.setWidth(3);
+        tmppen.setWidth(qMin(3,static_cast<int>(pen.width()+1)/2));
         tmppen.setStyle(Qt::CustomDashLine);
         tmppen.setDashPattern({5,5});
         tmppen.setColor([this](){
             int luminance = qGray(this->pen.color().rgb());
-            // 简单阈值（通常取128，但可根据需要调整）
             return luminance > 128 ? Qt::black : Qt::white;
         }());
         painter.setPen(tmppen);
@@ -131,12 +133,11 @@ void Line::changeSelectedWidget(QImage& image){
     QPainter painter(&image);
     if(selected){
         QPen tmppen;
-        tmppen.setWidth(3);
+        tmppen.setWidth(qMin(3,static_cast<int>(pen.width()+1)/2));
         tmppen.setStyle(Qt::CustomDashLine);
         tmppen.setDashPattern({5,5});
         tmppen.setColor([this](){
             int luminance = qGray(this->pen.color().rgb());
-            // 简单阈值（通常取128，但可根据需要调整）
             return luminance > 128 ? Qt::black : Qt::white;
         }());
         painter.setPen(tmppen);
@@ -181,7 +182,7 @@ void PKUSticker::changeSelectedWidget(QImage& image)
     QPainter painter(&image);
     if(selected){
         QPen tmppen;
-        tmppen.setWidth(3);
+        tmppen.setWidth(qMin(3,static_cast<int>(pen.width()+1)/2));
         tmppen.setStyle(Qt::CustomDashLine);
         tmppen.setDashPattern({5,5});
         tmppen.setColor([this](){
