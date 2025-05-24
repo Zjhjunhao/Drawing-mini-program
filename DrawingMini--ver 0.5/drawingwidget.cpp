@@ -74,6 +74,20 @@ void DrawingWidget::adjustViewport()
     viewportY = static_cast<int>(centerY - viewportHeight / 2);
 }
 
+void DrawingWidget::deleteShape(){
+    if(shape!=nullptr){
+        shapeImage.fill(QColor(0,0,0,0));
+        shapes.erase(std::remove(shapes.begin(), shapes.end(), shape), shapes.end());
+        QPainter painter(&shapeImage);
+        for(auto it=shapes.begin();it!=shapes.end();++it){
+            painter.setPen((*it)->pen);
+            (*it)->draw(painter);
+        }
+        shape=nullptr;
+        update();
+    }
+}
+
 void DrawingWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
@@ -87,22 +101,32 @@ void DrawingWidget::mousePressEvent(QMouseEvent *event)
         }
         if(pen->getmode()==6){
             tempShape.fill(QColor(0,0,0,0));// 先清空
-            Shapes* temp=nullptr;
+            bool flag=false;
             for (auto it = shapes.rbegin(); it != shapes.rend(); ++it) {// 找最上层的
                 if ((*it)->contains(lastPoint)) {
+                    flag=true;
                     emit selectedShape(*it);
-                    temp=(*it);
+                    shape=(*it);
                     shapes.erase(it.base()-1);
                     break;
                 }
             }
+            if(flag==false && shape!=nullptr){
+                shape=nullptr;
+            }
             QPainter painter(&tempShape);
+
             for(auto it=shapes.begin();it!=shapes.end();++it){
+                if((*it)->type != PKUSTICKER){
+                    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+                }else{
+                    painter.setCompositionMode(QPainter::CompositionMode_Overlay);
+                }
                 painter.setPen((*it)->pen);
                 (*it)->draw(painter);
             }
-            if(temp!=nullptr){
-                shapes.push_back(temp);
+            if(shape!=nullptr){
+                shapes.push_back(shape);
             }
         }
         if (pen->getmode()==8) { // 文本框模式
@@ -146,7 +170,7 @@ void DrawingWidget::mouseMoveEvent(QMouseEvent *event)
         }
         update();
     }
-    if(pen->getmode()==6){// 选择框逻辑
+    if(pen->getmode()==6&&!pen->hasShape()){// 选择框逻辑
         bool flag=false;// 是否有对象被选中
         for (auto it = shapes.rbegin(); it != shapes.rend(); ++it) {// 找最上层的
             if ((*it)->contains(currentPoint)&&!flag) {
@@ -189,7 +213,7 @@ void DrawingWidget::mouseReleaseEvent(QMouseEvent *event)
         QPainter painter(&originalImage);
         painter.drawImage(0,0,drawingImage);
         painter.drawImage(0,0,shapeImage);
-        qDebug() << "Stop drawing";
+        qDebug() << "Stop drawing"<<shapes.size();
     }
 }
 

@@ -23,6 +23,7 @@ signals:
     void colorChanged(const QColor &color);
     void toolModeChanged(int mode);
     void penSizeChanged(int size);
+    void shapeDeleted();
 
 
 
@@ -33,6 +34,7 @@ private:
     QActionGroup *toolGroup;
     QAction *colorAction;
     QColor currentColor;
+    QAction *deleteAction;
 };
 
 #endif // DRAWINGTOOLBAR_H

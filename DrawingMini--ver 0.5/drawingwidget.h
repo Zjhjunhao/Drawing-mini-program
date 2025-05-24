@@ -31,6 +31,7 @@ public:
     QImage getBackgroundImage() const;
     QImage getDrawingImage() const;
     void updateScaledImage();
+    Shapes* shape;
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -73,6 +74,7 @@ public slots:
     void handleHorizontalScroll(double ratio);
     void handleVerticalScroll(double ratio);
     void setCurrentToolMode(int mode);
+    void deleteShape();
 
 signals:
     void pageStepRatio(double ratioH,double ratioV);

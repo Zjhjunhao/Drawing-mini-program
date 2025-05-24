@@ -16,5 +16,6 @@
         <file>icons/topic.png</file>
         <file>icons/pkuname.png</file>
         <file>icons/boya.png</file>
+        <file>icons/delete.png</file>
     </qresource>
 </RCC>
