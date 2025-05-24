@@ -91,6 +91,12 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     boyaAction->setCheckable(true);
     boyaAction->setData(10); // 博雅塔
 
+    QAction *westdoorAction = new QAction(QIcon(":/icons/westdoor.png"), "西门", this);
+    westdoorAction->setToolTip("西门");
+    westdoorAction->setStatusTip("切换到西门");
+    westdoorAction->setCheckable(true);
+    westdoorAction->setData(11); // 西门
+
     //添加动作
     addAction(penAction);
     addAction(eraserAction);
@@ -101,7 +107,6 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     addAction(rectangleAction);
     addAction(circleAction);
     addAction(selectAction);
-
 
     toolGroup->addAction(penAction);
     toolGroup->addAction(eraserAction);
@@ -114,6 +119,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     toolGroup->addAction(selectAction);
     toolGroup->addAction(badgeAction);
     toolGroup->addAction(boyaAction);
+    toolGroup->addAction(westdoorAction);
 
     //默认选中铅笔
     penAction->setChecked(true);
@@ -162,6 +168,7 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     addSeparator();
     addAction(badgeAction);
     addAction(boyaAction);
+    addAction(westdoorAction);
     //连接颜色选择信号
     connect(colorAction, &QAction::triggered, this, &DrawingToolBar::onColorSelected);
 

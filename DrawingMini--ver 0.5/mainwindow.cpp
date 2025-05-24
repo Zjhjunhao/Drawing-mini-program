@@ -240,5 +240,6 @@ void MainWindow::setupDrawingPage(){
     // 加载北大特色贴图
     QImage badgeImage(":/icons/pku.png");
     QImage boyaImage(":/icons/boya.png");
-    drawwidget->pen->setPKUImage(badgeImage, boyaImage);
+    QImage westdoorImage(":/icons/westdoor.png");
+    drawwidget->pen->setPKUImage(badgeImage, boyaImage, westdoorImage);
 }

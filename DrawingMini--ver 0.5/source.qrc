@@ -17,5 +17,6 @@
         <file>icons/pkuname.png</file>
         <file>icons/boya.png</file>
         <file>icons/delete.png</file>
+        <file>icons/westdoor.png</file>
     </qresource>
 </RCC>

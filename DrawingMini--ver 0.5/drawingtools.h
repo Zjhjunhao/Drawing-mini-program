@@ -39,6 +39,7 @@ private:
     QImage tempImage;//临时保存drawingImage,绘制形状时有用
     QImage badgeImage;
     QImage boyaImage;
+    QImage westdoorImage;
     void ShapeDrawing(QPainter& painter,QPoint& nowPoint,QPoint& lastPoint);//形状绘制
     void scanLineFill(QImage &drawingImage,QImage& composedImage, QPoint& point);
 
@@ -52,7 +53,7 @@ public slots:
     void setSize(int size);
     void setMode(int mode);//不同的num对应不同的画笔工具，由界面中选择按钮发出signal
     void setSelectedShape(Shapes* p);
-    void setPKUImage(const QImage& badgeimage, const QImage& boyaimage);
+    void setPKUImage(const QImage& badgeimage, const QImage& boyaimage, const QImage& westdoorimage);
 
 signals:
     void returnShape(Shapes* p);
