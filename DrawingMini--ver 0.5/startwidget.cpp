@@ -36,7 +36,7 @@ StartWidget::StartWidget(QWidget *parent)
     imageLabel->setPixmap(pixmap);
     imageLabel->setScaledContents(true);
 
-    imageLabel->setStyleSheet("background-color: rgba(255, 255, 255, 128);"
+    imageLabel->setStyleSheet("background-color: rgba(255, 255, 255, 144);"
                                  "border-radius: 8px;"
                                   "padding: 0px;");
 
@@ -51,14 +51,52 @@ StartWidget::StartWidget(QWidget *parent)
     QVBoxLayout *buttonLayout = new QVBoxLayout();
     buttonLayout->setAlignment(Qt::AlignRight | Qt::AlignBottom);
     buttonLayout->setContentsMargins(20, 0, 200, 200);
-    buttonLayout->setSpacing(10);
+    buttonLayout->setSpacing(25);
 
     // 按钮
     newButton = new QPushButton("新建画布", rightPanel);
     openButton = new QPushButton("打开文件", rightPanel);
 
     // 设置按钮样式
-    QString buttonStyle = "QPushButton { padding: 10px; font-size: 16px; min-width: 150px; }";
+    QString buttonStyle = R"(
+        QPushButton {
+            padding: 10px;
+            font-size: 20px;
+            min-width: 150px;
+            font-family: "SimHei";
+            font-weight: bold;
+            color: #000000;
+
+            /* 使用RGBA格式设置带透明度的渐变 */
+            background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                              stop:0 rgba(255, 255, 255, 190),
+                                              stop:1 rgba(224, 224, 224, 190));
+
+            border: 1px solid rgba(170, 170, 170, 200);
+            border-radius: 5px;
+            border-bottom-color: rgba(136, 136, 136, 200);
+            border-right-color: rgba(136, 136, 136, 200);
+            border-left-color: rgba(255, 255, 255, 200);
+            border-top-color: rgba(255, 255, 255, 200);
+        }
+
+        QPushButton:hover {
+            background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                              stop:0 rgba(245, 245, 245, 240), /* 悬停时增加不透明度 */
+                                              stop:1 rgba(208, 208, 208, 240));
+            color: #000000;
+        }
+
+        QPushButton:pressed {
+            background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                              stop:0 rgba(208, 208, 208, 220),
+                                              stop:1 rgba(245, 245, 245, 220));
+            border-bottom-color: rgba(255, 255, 255, 200);
+            border-right-color: rgba(255, 255, 255, 200);
+            border-left-color: rgba(136, 136, 136, 200);
+            border-top-color: rgba(136, 136, 136, 200);
+        }
+    )";
     newButton->setStyleSheet(buttonStyle);
     openButton->setStyleSheet(buttonStyle);
 

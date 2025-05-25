@@ -1,7 +1,7 @@
 #include "shapes.h"
 
 Shapes::Shapes(ShapeType type,const QPoint& lastPoint,const QPoint& nowPoint):
-    type(type),lastPoint(lastPoint),nowPoint(nowPoint),selected(false),hasPen(false),pen(QPen()){}
+    lastPoint(lastPoint),nowPoint(nowPoint),selected(false),hasPen(false),pen(QPen()),type(type){}
 
 void Shapes::setSelected(bool select,QImage& image){
     selected=select;
@@ -179,21 +179,5 @@ void PKUSticker::move(const QPoint& last,const QPoint& now)
 
 void PKUSticker::changeSelectedWidget(QImage& image)
 {
-    QPainter painter(&image);
-    if(selected){
-        QPen tmppen;
-        tmppen.setWidth(qMin(3,static_cast<int>(pen.width()+1)/2));
-        tmppen.setStyle(Qt::CustomDashLine);
-        tmppen.setDashPattern({5,5});
-        tmppen.setColor([this](){
-            int luminance = qGray(this->pen.color().rgb());
-            return luminance > 128 ? Qt::black : Qt::white;
-        }());
-        painter.setPen(tmppen);
-        painter.drawRect(rect.normalized());
-    }
-    else{
-        painter.setPen(pen);
-        painter.drawImage(rect.normalized(), stickerImage);
-    }
+    return;
 }
