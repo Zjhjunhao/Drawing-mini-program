@@ -18,5 +18,6 @@
         <file>icons/boya.png</file>
         <file>icons/delete.png</file>
         <file>icons/westdoor.png</file>
+        <file>icons/mainwindow.jpg</file>
     </qresource>
 </RCC>
