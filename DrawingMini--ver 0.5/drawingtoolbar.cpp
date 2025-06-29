@@ -67,11 +67,11 @@ void DrawingToolBar::setupTools(DrawingWidget *drawingWidget)
     selectAction->setCheckable(true);
     selectAction->setData(6); // 选择模式
 
-    QAction *strawAction = new QAction(QIcon(":/icons/straw.png"), "着色器", this);
-    strawAction->setToolTip("着色器");
-    strawAction->setStatusTip("切换到着色器");
+    QAction *strawAction = new QAction(QIcon(":/icons/straw.png"), "取色器", this);
+    strawAction->setToolTip("取色器");
+    strawAction->setStatusTip("切换到取色器");
     strawAction->setCheckable(true);
-    strawAction->setData(7); // 着色器模式
+    strawAction->setData(7); // 取色器模式
 
     QAction *textAction = new QAction(QIcon(":/icons/text.png"), "文本框", this);
     textAction->setToolTip("文本框");
@@ -234,8 +234,7 @@ QWidget* DrawingToolBar::createColorPalette()
     //定义基本颜色列表
     QList<QColor> basicColors = {
         Qt::black, Qt::white, Qt::red, Qt::green, Qt::blue,
-        Qt::yellow, Qt::cyan, Qt::magenta, Qt::gray, Qt::darkGray,
-        Qt::lightGray, QColor(255, 165, 0), // 橙色
+        Qt::yellow, Qt::cyan, Qt::magenta, Qt::gray,  QColor(255, 165, 0), // 橙色
         QColor(128, 0, 128), // 紫色
         QColor(255, 192, 203) // 粉色
     };
